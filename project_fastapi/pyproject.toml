@@ -1,0 +1,28 @@
+[project]
+name = "project-fastapi"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Demon :)", email = "siuotp@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "faker>=40.36.0",
+    "fastapi[standard]>=0.141.1",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic-settings>=2.15.0",
+    "pydantic[email]>=2.13.4",
+    "pyjwt>=2.13.0",
+    "pymysql>=1.2.0",
+    "slowapi>=0.1.10",
+    "sqlalchemy>=2.0.52",
+    "uvicorn[standard]>=0.52.4",
+]
+
+[project.scripts]
+project-fastapi = "project_fastapi:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
