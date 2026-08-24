@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models import ProjectModel, UserModel, ProjectMemberModel, ProjectMemberRole
 from app.schemas import ProjectMemberInput
 from collections.abc import Callable
+from datetime import datetime, timezone
 
 find_member_in_project: Callable[[Session, int, int], ProjectMemberModel | None] = (
     lambda the_data, project_id, member_id: the_data.query(ProjectMemberModel)
@@ -45,8 +46,8 @@ def create_member(
             new_data = ProjectMemberModel(
                 project_id=id,
                 user_id=data_in.user_id,
-                role=data_in.role,
-                joined_at=data_in.join_at,
+                role="MEMBER",
+                joined_at=datetime.now(timezone.utc),
             )
             db.add(new_data)
             db.commit()
