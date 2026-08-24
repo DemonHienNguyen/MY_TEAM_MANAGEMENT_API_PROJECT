@@ -117,7 +117,7 @@ def get_all_task_in_project(
     if assignee is not None:
         the_task = the_task.filter(TaskModel.assignee_id == assignee)
     if title is not None:
-        the_task = the_task.filter(TaskModel.title == title)
+        the_task = the_task.filter(TaskModel.title.ilike(f"%{title}%"))
 
     if sort_by == "asc":
         the_task = the_task.order_by(TaskModel.due_date.asc())

@@ -79,6 +79,8 @@ def path_project(db:Session, id:int, current_user: UserModel, update_project: Pr
     the_project = find_project_by_id(db, id)
     if the_project is None:
         return "NOT FOUND THE PROJECT !"
+    if the_project.is_delete:
+        return "THE PROJECT HAVE BEEN DELETE !"
     if current_user.id != the_project.owner_id:
         return "NOT PREMISSION TO UPDATE !"
     for key, value in update_project.model_dump(exclude_unset=True).items():

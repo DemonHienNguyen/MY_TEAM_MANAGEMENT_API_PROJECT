@@ -142,6 +142,15 @@ def update_project(
                 "error": "NOT FOUND THIS PROJECT ID !",
             },
         )
+    if check == "THE PROJECT HAVE BEEN DELETE !":
+        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": f"Project có id là {project_id} đã bị xóa",
+                "error": "PROJECT HAVE BEEN DELETE !",
+            },
+        )
     if check == "NOT PREMISSION TO UPDATE !":
         logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ CẬP NHẬT DỰ ÁN")
         raise HTTPException(

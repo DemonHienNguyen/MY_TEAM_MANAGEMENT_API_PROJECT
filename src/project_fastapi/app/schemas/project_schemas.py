@@ -12,8 +12,6 @@ class ProjectInput(BaseModel):
 class ProjectUpdate(BaseModel):
     name: str = Field(...,min_length=1, max_length=255, examples=["Dự án VIP"])
     description: str = Field(default="", examples=["Dự án này làm những gì..."])
-    create_at: datetime = Field(default_factory=lambda:datetime.now())
-    is_delete: Literal[True, False] = Field(default=True)
 
 
 class ProjectResponse(BaseModel):
