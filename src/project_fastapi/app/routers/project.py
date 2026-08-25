@@ -138,17 +138,8 @@ def update_project(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
-                "message": f"Không tìm thấy project có id là {id}",
+                "message": f"Không tìm thấy project có id là {project_id}",
                 "error": "NOT FOUND THIS PROJECT ID !",
-            },
-        )
-    if check == "THE PROJECT HAVE BEEN DELETE !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "message": f"Project có id là {project_id} đã bị xóa",
-                "error": "PROJECT HAVE BEEN DELETE !",
             },
         )
     if check == "NOT PREMISSION TO UPDATE !":
@@ -158,6 +149,15 @@ def update_project(
             detail={
                 "message": "Bạn không có quyền để cập nhật",
                 "error": "YOU DONT HAVE PREMISSION TO UPDATE PROJECT",
+            },
+        )
+    if check == "THE PROJECT HAVE BEEN DELETE !":
+        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": f"Project có id là {project_id} đã bị xóa",
+                "error": "PROJECT HAVE BEEN DELETE !",
             },
         )
     logger.info("CẬP NHẬT DỰ ÁN")
@@ -184,7 +184,7 @@ def delete_a_project(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
-                "message": f"Không tìm thấy project có id là {id}",
+                "message": f"Không tìm thấy project có id là {project_id}",
                 "error": "NOT FOUND THIS PROJECT ID !",
             },
         )

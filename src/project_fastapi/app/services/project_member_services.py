@@ -32,14 +32,16 @@ def create_member(
 ):
     the_project_to_add_member = find_project_by_id(db, id)
     user_to_add_in_project = find_user_by_user_id(db, data_in.user_id)
-    if user_to_add_in_project is None:
-        return "NOT FOUND A USER !"
     if the_project_to_add_member is None:
         return "NOT FOUND THE PROJECT !"
     if the_project_to_add_member.owner_id != current_user.id:
         return "NOT PREMISSION TO DO THE PROJECT"
     if the_project_to_add_member.is_delete:
         return "THE PROJECT HAVE BEEN DELETE !"
+    if user_to_add_in_project is None:
+        return "NOT FOUND A USER !"
+    if user_to_add_in_project.is_active == False:
+        return "USER NOT ACTIVATE !"
     check_member_duplicate = find_member_in_project(db, id, data_in.user_id)
     if check_member_duplicate is None:
         try:
@@ -88,12 +90,14 @@ def delete_member(db: Session, id: int, user_id_to_delete: int, current_user: Us
         return "NOT FOUND THE PROJECT !"
     if the_user_to_check is None:
         return "NOT FOUND USER !"
-    if the_project_to_check.is_delete:
-        return "THE PROJECT HAVE BEEN DELETE !"
     if the_project_to_check.owner_id != current_user.id:
         return "NOT PREMISSION TO DELETE THE MEMBER IN THE PROJECT"
+    if the_project_to_check.is_delete:
+        return "THE PROJECT HAVE BEEN DELETE !"
     if check_user_in_that_project is None:
         return "USER NOT IN THAT PROJECT !"
+    if check_user_in_that_project.is_delete:
+        return "THAT USER HAVE BEEN DELETED !"
     if check_user_in_that_project.role == ProjectMemberRole.OWNER or check_user_in_that_project.user_id == current_user.id:
         return "NOT DELETE THE OWNER OF PROJECT"
     check_user_in_that_project.is_delete = True

@@ -1,4 +1,5 @@
-
+# Ignore all files ending in .log anywhere in the repository
+*.log
 .env
 *.env
 __pycache__/

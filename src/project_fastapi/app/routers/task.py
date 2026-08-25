@@ -105,7 +105,7 @@ def create_new_task(
     response_model=StandardResponse[list[TaskResponseButForGetListTask]],
     status_code=status.HTTP_200_OK,
 )
-@limit.limit("5/minute")  # type: ignore
+@limit.limit("20/minute")  # type: ignore
 def get_list_of_task_filter(
     request: Request,
     db: DataBase,

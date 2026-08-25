@@ -38,6 +38,14 @@ def add_new_member_in_project(
                 "error": f"NOT FOUND USER HAVE ID LIKE {data_in.user_id}",
             },
         )
+    if check == "USER NOT ACTIVATE !":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": f"User có id là {data_in.user_id} đã ngừng hoạt động!",
+                "error": f"USER HAVE ID {data_in.user_id} have been not activate",
+            },
+        )
     if check == "NOT FOUND THE PROJECT !":
         logger.error("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
@@ -52,7 +60,7 @@ def add_new_member_in_project(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
-                "message": "Người dùng không có quyền để chỉnh sửa chi tiết dự án này !",
+                "message": "Người dùng không có quyền để thêm thành viên vào dự án này !",
                 "error": "NOT HAVE PREMISSION TO ADJUST THE PROJECT !",
             },
         )
@@ -189,6 +197,14 @@ def delete_project_member(
             detail={
                 "message": "Người dùng không có trong project !",
                 "error": "USER NOT IN MEMBER IN THE PROJECT !",
+            },
+        )
+    if check == "THAT USER HAVE BEEN DELETED !":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Người dùng NÀY đã bị xóa trong project",
+                "error": "USER IN MEMBER HAVE BEEN DELETE IN THE PROJECT !",
             },
         )
     if check == "NOT DELETE THE OWNER OF PROJECT":
