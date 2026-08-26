@@ -58,18 +58,6 @@ class UserLogin(BaseModel):
         if not value.strip():
             raise ValueError("Email không được trống !")
         return value
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, value: str):
-        if len(value) < 8:
-            raise ValueError("Mật khẩu phải 8 ký tự !")
-        if not any(c.isupper() for c in value):
-            raise ValueError("Mật khẩu phải có ít nhất 1 ký tự viết Hoa")
-        if not any(c.islower() for c in value):
-            raise ValueError("Mật khẩu phải có ít nhất 1 ký tự thường !")
-        if not any(c.isdigit() for c in value):
-            raise ValueError("Mật khẩu phải có ít nhất 1 số !")
-        return value
 
     
     

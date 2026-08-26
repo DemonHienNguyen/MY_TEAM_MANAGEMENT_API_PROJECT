@@ -41,6 +41,8 @@ router = APIRouter(prefix="/task", tags=["Task"])
     "/projects/{id}/task",
     response_model=StandardResponse[TaskResponse],
     status_code=status.HTTP_201_CREATED,
+    summary="Thêm Task vào dự án đó",
+    description="AI TRONG PROJECT CŨNG CÓ QUYỀN ĐỂ CÓ THỂ THÊM TASK VÀO DỰ ÁN, NGƯỜI THÊM TASK ĐÓ SẼ CÓ QUYỀN THẤP HƠN VỚI OWNER NHƯNG SẼ CAO HƠN ASSIGNEE",
 )
 @limit.limit("5/minute")  # type: ignore
 def create_new_task(
@@ -104,6 +106,8 @@ def create_new_task(
     "/projects/{project_id}/tasks",
     response_model=StandardResponse[list[TaskResponseButForGetListTask]],
     status_code=status.HTTP_200_OK,
+    summary="Xem danh sách task thuộc trong dự án",
+    description="AI TRONG PROJECT ĐÓ ĐỀU CÓ QUYỀN XEM DANH SÁCH CÁC TASK THUỘC DỰ ÁN ĐÓ, KHÔNG ĐƯỢC LỘ DANH SÁCH TASK THUỘC PROJECT KHÁC NẾU NGƯỜI ĐÓ KHÔNG THUỘC PROJECT ĐÓ, ĐỒNG THỜI HỖ TRỢ TÌM KIẾM THEO TÊN DỰ ÁN, NGƯỜI PHỤ TRÁCH DỰ ÁN, TRẠNG THÁI VÀ ĐỘ ƯU TIÊN, PHÂN TRANG VÀ SORT THEO DUE_DATE",
 )
 @limit.limit("20/minute")  # type: ignore
 def get_list_of_task_filter(
@@ -173,6 +177,8 @@ def get_list_of_task_filter(
     "/tasks/{task_id}",
     response_model=StandardResponse[TaskResponseButForGetListTask],
     status_code=status.HTTP_200_OK,
+    summary="Xem chi tiết task đó",
+    description="AI CŨNG CÓ QUYỀN XEM CHI TIẾT DỰ ÁN NHƯNG CHỈ THUỘC DỰ ÁN ĐÓ THÔI, KHÔNG ĐƯỢC LỘ TASK TỪ DỰ ÁN KHÁC",
 )
 @limit.limit("5/minute")  # type: ignore
 def get_deltail_task(
@@ -194,9 +200,9 @@ def get_deltail_task(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message":"Task này đã bị xóa !",
-                "error": "THIS TASK IS DELETED !"
-            }
+                "message": "Task này đã bị xóa !",
+                "error": "THIS TASK IS DELETED !",
+            },
         )
     if check == "PROJECT NOT EXISTS !":
         raise HTTPException(
@@ -235,6 +241,8 @@ def get_deltail_task(
     "/tasks/{task_id}",
     response_model=StandardResponse[TaskResponse],
     status_code=status.HTTP_200_OK,
+    summary="Cập nhật task trong dự án",
+    description="CHỈ DÀNH CHO NGƯỜI TẠO RA TASK ĐÓ VỚI NGƯỜI CHỦ TRÌ CỦA DỰ ÁN MỚI ĐƯỢC PHÉP CẬP NHẬT",
 )
 @limit.limit("5/minute")  # type: ignore
 def update_task(
@@ -257,9 +265,9 @@ def update_task(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message":"Task này đã bị xóa !",
-                "error": "THIS TASK IS DELETED !"
-            }
+                "message": "Task này đã bị xóa !",
+                "error": "THIS TASK IS DELETED !",
+            },
         )
     if check == "PROJECT NOT EXISTS !":
         raise HTTPException(
@@ -319,7 +327,12 @@ def update_task(
     )
 
 
-@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{task_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Xóa task trong dự án (Xóa mềm)",
+    description="CHỈ DÀNH CHO NGƯỜI TẠO RA TASK ĐÓ VỚI NGƯỜI CHỦ TRÌ CỦA DỰ ÁN MỚI ĐƯỢC PHÉP XÓA",
+)
 @limit.limit("5/minute")  # type: ignore
 def delete_a_task(
     request: Request,
@@ -340,9 +353,9 @@ def delete_a_task(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message":"Task này đã bị xóa !",
-                "error": "THIS TASK HAS ALREADY DELETED !"
-            }
+                "message": "Task này đã bị xóa !",
+                "error": "THIS TASK HAS ALREADY DELETED !",
+            },
         )
     if check == "PROJECT NOT EXISTS !":
         raise HTTPException(
@@ -384,6 +397,8 @@ def delete_a_task(
     "/{task_id}/comments",
     response_model=StandardResponse[CommentResponse],
     status_code=status.HTTP_201_CREATED,
+    summary="Thêm Comment vào trong task thuộc dự án",
+    description="Ai trong  dự án đều có thể thêm comment vào trong dự án này"
 )
 def add_a_commment(
     request: Request,
@@ -405,9 +420,9 @@ def add_a_commment(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message":"Task này đã bị xóa !",
-                "error": "THIS TASK IS DELETED !"
-            }
+                "message": "Task này đã bị xóa !",
+                "error": "THIS TASK IS DELETED !",
+            },
         )
     if check == "PROJECT NOT EXISTS !":
         raise HTTPException(
@@ -446,6 +461,8 @@ def add_a_commment(
     "/{task_id}/attachments",
     response_model=StandardResponse[AttachmentResponse],
     status_code=status.HTTP_201_CREATED,
+    summary="Thêm file vào trong task",
+    description="AI TRONG DỰ ÁN ĐỀU CÓ THỂ THÊM FILE VÀO TRONG DỰ ÁN ĐÓ "
 )
 async def create_a_attachments(
     request: Request,
@@ -467,17 +484,17 @@ async def create_a_attachments(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message":"Task này đã bị xóa !",
-                "error": "THIS TASK IS DELETED !"
-            }
+                "message": "Task này đã bị xóa !",
+                "error": "THIS TASK IS DELETED !",
+            },
         )
     if check == "THIS TASK IS ALREADY DELETED !":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message":"Task này đã bị xóa !",
-                "error": "THIS TASK HAS ALREADY DELETED !"
-            }
+                "message": "Task này đã bị xóa !",
+                "error": "THIS TASK HAS ALREADY DELETED !",
+            },
         )
     if check == "PROJECT NOT EXISTS !":
         raise HTTPException(

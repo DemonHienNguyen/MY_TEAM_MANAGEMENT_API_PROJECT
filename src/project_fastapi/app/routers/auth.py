@@ -19,6 +19,8 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
     "/register",
     response_model=StandardResponse[UserResponse],
     status_code=status.HTTP_201_CREATED,
+    summary="Thêm người dùng mới / Đăng ký",
+    description="HÀM ĐỂ ĐĂNG KÝ SẼ NHẬP CÁC TRƯỜNG EMAIL, PASSWORD, VÀ FULLNAME SAU ĐÓ SẼ CHECK PASSWORD HỢP LỆ (PASSWORD CÓ 8 KÝ TỰ, ÍT NHẤT CHỨA 1 KÝ TỰ THƯỜNG VỚI 1 KÝ TỰ VIẾT HOA)",
 )
 @limit.limit("5/minute")  # type: ignore
 def create_a_new_user(request: Request, db: DataBase, user_regis: UserRegister):
@@ -42,7 +44,11 @@ def create_a_new_user(request: Request, db: DataBase, user_regis: UserRegister):
 
 
 @router.post(
-    "/login", response_model=UserResponseLogin, status_code=status.HTTP_201_CREATED
+    "/login",
+    response_model=UserResponseLogin,
+    status_code=status.HTTP_201_CREATED,
+    summary="Đăng nhập",
+    description="SẼ NHẬP TRƯỜNG EMAIL VÀ PASSWORD SAU ĐÓ CHECK CÓ TÀI KHOẢN CHỨA EMAIL ĐÓ CÓ TỒN TẠI HAY KHÔNG RỒI SO SÁNH MẬT KHẨU CUỐI CÙNG TRẢ VỀ ACCESS_TOKEN VỚI REFRESH_TOKEN",
 )
 @limit.limit("5/minute")  # type: ignore
 def login_a_user(request: Request, db: DataBase, login_form: UserLogin):
@@ -67,7 +73,11 @@ def login_a_user(request: Request, db: DataBase, login_form: UserLogin):
 
 
 @router.post(
-    "/refresh", response_model=UserResponseLogin, status_code=status.HTTP_201_CREATED
+    "/refresh",
+    response_model=UserResponseLogin,
+    status_code=status.HTTP_201_CREATED,
+    summary="Cấp lại access token",
+    description="SỬ DỤNG REFRESH_TOKEN ĐỂ LẤY ACCESSTOKEN MỚI MÀ KHÔNG CẦN PHẢI ĐĂNG NHẬP LẠI",
 )
 @limit.limit("10/hour")  # type: ignore
 def refresh_access_token(request: Request, db: DataBase, body: RefreshTokenRequest):

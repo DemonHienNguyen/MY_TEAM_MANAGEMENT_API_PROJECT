@@ -19,6 +19,8 @@ router = APIRouter(prefix="/project", tags=["Projects_member"])
     "/{id}/members",
     response_model=StandardResponse[ProjectMemberOutput],
     status_code=status.HTTP_201_CREATED,
+    summary="Thêm thành viên vào dự án",
+    description="YÊU CẦU OWNER CỦA DỰ ÁN MỚI ĐƯỢC THÊM, KHÔNG AI CÓ THỂ THÊM ĐƯỢC",
 )
 @limit.limit("5/minute")  # type: ignore
 def add_new_member_in_project(
@@ -97,6 +99,8 @@ def add_new_member_in_project(
     "/{id}/members",
     response_model=StandardResponse[list[ProjectMemberOutputButForGetMember]],
     status_code=status.HTTP_200_OK,
+    summary="Xem danh sách thành viên của dự án đó",
+    description="AI TRONG DỰ ÁN ĐỀU CÓ THỂ XEM ĐƯỢC THÀNH VIÊN TRONG DỰ ÁN ĐÓ",
 )
 @limit.limit("5/minute")  # type: ignore
 def get_list_of_member(
@@ -144,7 +148,10 @@ def get_list_of_member(
 
 
 @router.delete(
-    "/{id}/members/{user_id}", status_code=status.HTTP_204_NO_CONTENT
+    "/{id}/members/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Xóa thành viên trong dự án (Xóa mềm)",
+    description="CHỈ CÓ OWNER CỦA DỰ ÁN MỚI ĐƯỢC PHÉP XÓA, KHI XÓA CHỈ CẦN ĐỔI TRẠNG THÁI IS_DELETE THÀNH TRUE SAU THÊM LẠI THÌ CHỈ CẦN CHỈNH LẠI IS_DELETE THÀNH FALSE "
 )
 @limit.limit("5/minute")  # type: ignore
 def delete_project_member(

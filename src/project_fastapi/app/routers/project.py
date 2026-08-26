@@ -22,6 +22,8 @@ router = APIRouter(prefix="/projects", tags=["Project"])
     response_model=StandardResponse[ProjectResponse],
     dependencies=[Depends(Require_Admin_and_User)],
     status_code=status.HTTP_201_CREATED,
+    summary="Tạo một dự án mới",
+    description="TẠO MỘT DỰ ÁN MỚI DO NGƯỜI DÙNG TỰ TẠO RA, CÓ THỂ CHECK TÊN DỰ ÁN KHÔNG ĐƯỢC TRÙNG",
 )
 @limit.limit("5/minute")  # type: ignore
 def create_new_project(
@@ -30,7 +32,7 @@ def create_new_project(
     project_intput: ProjectInput,
     currrent_user: UserModel = Depends(get_current_user),
 ):
-    
+
     check = post_project(db, project_intput, currrent_user)
     if check == "NOT FOUND USER !":
         logger.warning("KHÔNG TÌM THẤY USER")
@@ -42,7 +44,10 @@ def create_new_project(
         logger.warning("TÊN DỰ ÁN BỊ TRÙNG !")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail={"message": "Tên dự án bị trùng !", "error": "NAME THE PROJECT IS DUPLICATE"},
+            detail={
+                "message": "Tên dự án bị trùng !",
+                "error": "NAME THE PROJECT IS DUPLICATE",
+            },
         )
     logger.info("TẠO DỰ ÁN THÀNH CÔNG")
     return StandardResponse(
@@ -58,6 +63,8 @@ def create_new_project(
     "/",
     response_model=StandardResponse[list[ProjectResponse]],
     status_code=status.HTTP_200_OK,
+    summary="Lấy danh sách dự án của người dùng",
+    description="NGƯỜI DÙNG CÓ THỂ LẤY ĐƯỢC DANH SÁCH DỰ ÁN MÀ MÌNH THUỘC HOẶC LÀ NHỮNG DỰ ÁN MÀ MÌNH TẠO RA TRƯỚC ĐÓ (KHÔNG HIỆN VỚI NHỮNG DỰ ÁN ĐÃ XÓA)",
 )
 @limit.limit("5/minute")  # type: ignore
 def get_all_project(
@@ -80,6 +87,8 @@ def get_all_project(
     "/{project_id}",
     response_model=StandardResponse[ProjectResponse],
     status_code=status.HTTP_200_OK,
+    summary="Lấy chi tiết dự án đó",
+    description="NGƯỜI DÙNG SẼ LẤY CHI TIẾT DỰ ÁN ĐÓ, NHỮNG NGƯỜI THUỘC DỰ ÁN ĐÓ MỚI CÓ THỂ XEM ĐƯỢC, KHÔNG CHO NGƯỜI NGOÀI XEM",
 )
 @limit.limit("5/minute")  # type: ignore
 def project_detail(
@@ -130,6 +139,8 @@ def project_detail(
     "/{project_id}",
     response_model=StandardResponse[ProjectResponse],
     status_code=status.HTTP_200_OK,
+    summary="Cập nhật dự án",
+    description="CHỈ DÀNH CHO NGƯỜI CHỦ CỦA DỰ ÁN ĐÓ (OWNER), NGƯỜI ĐÓ ĐƯỢC CẬP NHẬT DỰ ÁN, CÒN LẠI THÌ KHÔNG CHO PHÉP",
 )
 @limit.limit("5/minute")  # type: ignore
 def update_project(
@@ -177,7 +188,12 @@ def update_project(
     )
 
 
-@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{project_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Xóa Dự án",
+    description="YÊU CẦU CHỈ CHO NGƯỜI CHỦ CỦA DỰ ÁN ĐÓ MỚI ĐƯỢC XÓA, NGƯỜI KHÁC KHÔNG ĐƯỢC (KHI XÓA THÌ SẼ XÓA MỀM TỪ PROJECT ĐẾN PROJECT MEMBER RỒI ĐẾN NHỮNG TASK LIÊN QUAN ĐẾN PROJECT ĐÓ !)",
+)
 @limit.limit("5/minute")  # type: ignore
 def delete_a_project(
     request: Request,
