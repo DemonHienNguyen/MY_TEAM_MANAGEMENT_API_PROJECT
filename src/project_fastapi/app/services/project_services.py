@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, joinedload, join
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime, timezone
 from ..models import ProjectModel, UserModel, ProjectMemberModel, ProjectMemberRole
 from ..schemas import ProjectInput, ProjectUpdate
 from collections.abc import Callable
@@ -22,12 +23,15 @@ def post_project(db: Session, project_in: ProjectInput, current: UserModel):
     user_find = find_user_by_id(db, int(current.id))
     if user_find is None:
         return "NOT FOUND USER !"
+    the_project_duplicate_name = db.query(ProjectModel).filter(ProjectModel.name == project_in.name).first()
+    if the_project_duplicate_name is not None:
+        return "THE NAME PROJECT IS DUPLICATE !"
     try:
         new_project_data = ProjectModel(
             name=project_in.name,
             description=project_in.description,
             owner_id=user_find.id,
-            create_at=project_in.create_at,
+            create_at=datetime.now(timezone.utc),
         )
         db.add(new_project_data)
         db.flush()
@@ -98,7 +102,10 @@ def delete_project(db:Session, id: int, current_user: UserModel):
         return "NOT PREMISSION TO DELETE !"
     if the_project.is_delete:
         return "THE PROJECT HAVE BEEN DELETED !"
-    the_project.is_delete = not the_project.is_delete
+    the_project.is_delete = True
+    member_in_project = db.query(ProjectMemberModel).filter(ProjectMemberModel.project_id == the_project.id).all()
+    for m in member_in_project:
+        m.is_delete = True
     db.commit()
     return "DELETE SUCCESSFULL !"
     

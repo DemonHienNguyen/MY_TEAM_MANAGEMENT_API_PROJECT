@@ -11,27 +11,27 @@ class TaskInput(BaseModel):
     assignee_id: int = Field(..., examples=[2])
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
     priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM] = Field(..., examples=[TaskPriority.HIGH])
-    due_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    create_at: datetime = Field(...)
+    due_date: datetime | None = Field(default=None, examples=[None])
+    create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
 class TaskUpdate(BaseModel):
     title: str = Field(..., examples=["Dự án làm game tai ương"])
-    description: str = Field(default="")
+    description: str | None = Field(default=None, examples=[None])
     assignee_id: int = Field(..., examples=[2])
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
     priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM] = Field(..., examples=[TaskPriority.HIGH])
-    due_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    create_at: datetime = Field(...)
+    due_date: datetime | None = Field(default= None, examples=[None])
+    create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
 class TaskResponse(BaseModel):
     id: int 
     project_id: int 
     title: str 
-    description: str 
+    description: str | None
     assignee_id: int 
     status: str
     priority: str
-    due_date: datetime 
+    due_date: datetime | None
     create_at: datetime 
     create_by: int
     

@@ -37,6 +37,12 @@ def create_new_project(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": "Không tìm thấy user !", "error": "NOT FOUND A USER"},
         )
+    if check == "THE NAME PROJECT IS DUPLICATE !":
+        logger.error("TÊN DỰ ÁN BỊ TRÙNG !")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"message": "Tên dự án bị trùng !", "error": "NAME THE PROJECT IS DUPLICATE"},
+        )
     logger.info("TẠO DỰ ÁN THÀNH CÔNG")
     return StandardResponse(
         StatusCode=status.HTTP_201_CREATED,

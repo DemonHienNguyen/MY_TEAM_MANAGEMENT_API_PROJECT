@@ -1,12 +1,10 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
-from typing import Literal
 
 
 class ProjectInput(BaseModel):
     name: str = Field(...,min_length=1, max_length=255, examples=["Dự án VIP"])
     description: str = Field(default="", examples=["Dự án này làm những gì..."])
-    create_at: datetime = Field(...)
 
 
 class ProjectUpdate(BaseModel):
