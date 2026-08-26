@@ -65,7 +65,7 @@ def create_new_task(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
-                "message": "Người dùng không tồn tại",
+                "message": "Người phụ trách dự án không tồn tại",
                 "error": "USER NOT EXISTS !",
             },
         )
@@ -81,7 +81,7 @@ def create_new_task(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
-                "message": "Người dùng không có trong dự án đó !",
+                "message": "BẠN không trong dự án đó !",
                 "error": "THAT USER NOT HAVE PREMISSION IN THE PROJECT !",
             },
         )
@@ -92,6 +92,14 @@ def create_new_task(
                 "message": "Người được giao task không thuộc dự án này !",
                 "error": "THIS ASSIGNEE NOT IN THE PROJECT !",
             },
+        )
+    if check == "THAT ASSIGNEE IS NOT ACTIVATE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Người được giao task đã ngừng hoạt động !",
+                "error": "THIS ASSIGNEE NOT ACTIVATE !",
+            }
         )
     return StandardResponse(
         StatusCode=status.HTTP_201_CREATED,
@@ -160,7 +168,7 @@ def get_list_of_task_filter(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
-                "message": "Người dùng không thuộc trong dự án này !",
+                "message": "BẠN không trong dự án này !",
                 "error": "THIS USER NOT IN THAT PROJECT !",
             },
         )
@@ -289,7 +297,7 @@ def update_task(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message": "Người dùng không có trong dự án này !",
+                "message": "BẠN không có trong dự án này !",
                 "error": "USER NOT HAVE IN THE PROJECT ",
             },
         )
@@ -308,6 +316,14 @@ def update_task(
                 "message": "Không tồn tại người dùng này !",
                 "error": "NOT FOUND THAT ASSIGNEE USER !",
             },
+        )
+    if check == "THAT ASSIGNEE IS NOT ACTIVATE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Người được giao task đã ngừng hoạt động !",
+                "error": "THIS ASSIGNEE NOT ACTIVATE !",
+            }
         )
     if check == "ASSIGNEE NOT IN PROJECT !":
         raise HTTPException(

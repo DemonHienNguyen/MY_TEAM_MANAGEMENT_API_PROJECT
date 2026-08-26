@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from datetime import datetime, timezone
 from ..models import TaskStatus, TaskPriority
 from typing import Literal
@@ -13,7 +13,20 @@ class TaskInput(BaseModel):
     priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM] = Field(..., examples=[TaskPriority.HIGH])
     due_date: datetime | None = Field(default=None, examples=[None])
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    
+    @model_validator(mode="after")
+    def check_due_date_after_created_at(self):
+        if self.due_date is not None:
+            due = self.due_date
+            created = self.create_at
+            if due.tzinfo is None:
+                due = due.replace(tzinfo=timezone.utc)
+            if created.tzinfo is None:
+                created = created.replace(tzinfo=timezone.utc)
+
+            if due <= created:
+                raise ValueError("due_date phải diễn ra sau create_at!")
+
+        return self
 class TaskUpdate(BaseModel):
     title: str = Field(..., examples=["Dự án làm game tai ương"])
     description: str | None = Field(default=None, examples=[None])
@@ -23,6 +36,20 @@ class TaskUpdate(BaseModel):
     due_date: datetime | None = Field(default= None, examples=[None])
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
+    @model_validator(mode="after")
+    def check_due_date_after_created_at(self):
+        if self.due_date is not None:
+            due = self.due_date
+            created = self.create_at
+            if due.tzinfo is None:
+                due = due.replace(tzinfo=timezone.utc)
+            if created.tzinfo is None:
+                created = created.replace(tzinfo=timezone.utc)
+
+            if due <= created:
+                raise ValueError("due_date phải diễn ra sau create_at!")
+
+        return self
 class TaskResponse(BaseModel):
     id: int 
     project_id: int 

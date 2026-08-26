@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .db import create_all, seed_data # type: ignore
+from .db import create_all, seed_data  # type: ignore
 from .models import UserModel, ProjectMemberModel, ProjectModel, TaskModel, CommnentModel  # type: ignore
 from .exceptions import global_error, http_error, validate_error, rare_limit
 from contextlib import asynccontextmanager
-# from .db.seed import seed_data  
+
+# from .db.seed import seed_data
 from .core import limit, logger, setting
 from .routers import AuRouter, UsRouter, ProRouter, ProMeRouter, TasRouter
 from slowapi.errors import RateLimitExceeded
@@ -29,7 +30,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_origins=setting.CORS_ORIGINS
+    allow_origins=setting.CORS_ORIGINS,
 )
 
 app.state.limiter = limit
@@ -47,10 +48,17 @@ app.include_router(ProMeRouter)
 app.include_router(TasRouter)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    summary="TestAPI",
+    description="Này để check api chạy được không đồng thời có link use case",
+)
 def check_health_api():
     logger.info("API chạy tốt !")
-    return {"message": "API run still good !","file_check_sheet":""}
+    return {
+        "message": "API run still good !",
+        "file_check_sheet": "https://docs.google.com/spreadsheets/d/1hRoiXyYpnDJS35HoyMBsYho6rlGYrr5w_jxzofdsTEY/edit?usp=sharing",
+    }
 
 
 if __name__ == "__main__":

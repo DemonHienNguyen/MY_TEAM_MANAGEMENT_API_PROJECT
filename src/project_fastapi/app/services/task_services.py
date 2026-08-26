@@ -52,14 +52,16 @@ def post_a_task_in_project(
     check_assignee_in_project = find_member_in_project(db, id, data.assignee_id)
     if check_project is None:
         return "NOT FOUND THE PROJECT ! "
+    if check_member is None:
+        return "USER NOT IN THAT PROJECT !"
     if check_user is None:
         return "NOT FOUND USER !"
     if check_project.is_delete:
         return "THE PROJECT HAVE BEEN DELETE !"
-    if check_member is None:
-        return "USER NOT IN THAT PROJECT !"
     if check_assignee_in_project is None:
         return "ASSIGNEE NOT IN THE PROJECT !"
+    if not check_user.is_active:
+        return "THAT ASSIGNEE IS NOT ACTIVATE"
     try:
         new_data = TaskModel(
             project_id=id,
@@ -177,6 +179,8 @@ def patch_task(
     check_assignee_exists = find_user_by_user_id(db, data_update.assignee_id)
     if check_assignee_exists is None:
         return "ASSIGNEE NOT EXISTS !"
+    if not check_assignee_exists.is_active:
+        return "THAT ASSIGNEE IS NOT ACTIVATE"
     check_assignee_in_project = find_member_in_project(
         db, check_task_exists.project_id, data_update.assignee_id
     )
