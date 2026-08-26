@@ -5,7 +5,6 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str 
     full_name: str 
-    created_at: datetime
     @field_validator("email")
     @classmethod
     def validate_email(cls, value:str):

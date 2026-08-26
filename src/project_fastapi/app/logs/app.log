@@ -435,3 +435,7 @@
 [2026-08-25 08:39:10] - [INFO] - [app] - [middleware.py] - [RequestID: 02cc5aec-8edd-4023-9ea6-01aec427062a | Method: POST | Path: /auth/login | Status: 201 | ProcessTime: 0.0811s]
 [2026-08-25 08:39:30] - [INFO] - [app] - [middleware.py] - [RequestID: 054e563b-7400-422d-bd73-9675bf522637 | Method: POST | Path: /task/11/attachments | Status: 400 | ProcessTime: 0.0078s]
 [2026-08-25 08:40:12] - [INFO] - [app] - [middleware.py] - [RequestID: d028641c-0182-4271-b1d0-c330f5e3c3f5 | Method: POST | Path: /task/11/attachments | Status: 201 | ProcessTime: 0.0370s]
+[2026-08-26 07:08:23] - [INFO] - [app] - [middleware.py] - [RequestID: 302f3078-2cbf-4abb-91aa-5a627b734d24 | Method: GET | Path: /docs | Status: 200 | ProcessTime: 0.0005s]
+[2026-08-26 07:08:23] - [INFO] - [app] - [middleware.py] - [RequestID: 45d854c7-9ba4-48d7-a64e-7c225d8bbdb5 | Method: GET | Path: /openapi.json | Status: 200 | ProcessTime: 0.2362s]
+[2026-08-26 07:09:58] - [INFO] - [app] - [middleware.py] - [RequestID: 58f5a7e9-66ec-4856-86ee-1a94e0edc3e8 | Method: GET | Path: /docs | Status: 200 | ProcessTime: 0.0005s]
+[2026-08-26 07:09:58] - [INFO] - [app] - [middleware.py] - [RequestID: 900fc833-2461-469c-b020-ff2c07a1bf19 | Method: GET | Path: /openapi.json | Status: 200 | ProcessTime: 0.2009s]

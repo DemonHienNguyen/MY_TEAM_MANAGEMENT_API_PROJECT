@@ -17,7 +17,7 @@ def post_a_user(db:Session, data_in: UserRegister):
         email = data_in.email,
         password_hash = get_password_hash(data_in.password),
         full_name = data_in.full_name,
-        created_at = data_in.created_at
+        created_at = datetime.now(timezone.utc)
     )
     
     try:
