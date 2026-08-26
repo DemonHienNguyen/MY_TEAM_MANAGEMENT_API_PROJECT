@@ -30,15 +30,16 @@ def create_new_project(
     project_intput: ProjectInput,
     currrent_user: UserModel = Depends(get_current_user),
 ):
+    
     check = post_project(db, project_intput, currrent_user)
     if check == "NOT FOUND USER !":
-        logger.error("KHÔNG TÌM THẤY USER")
+        logger.warning("KHÔNG TÌM THẤY USER")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": "Không tìm thấy user !", "error": "NOT FOUND A USER"},
         )
     if check == "THE NAME PROJECT IS DUPLICATE !":
-        logger.error("TÊN DỰ ÁN BỊ TRÙNG !")
+        logger.warning("TÊN DỰ ÁN BỊ TRÙNG !")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={"message": "Tên dự án bị trùng !", "error": "NAME THE PROJECT IS DUPLICATE"},
@@ -89,7 +90,7 @@ def project_detail(
 ):
     check = get_detail_project(db, project_id=project_id, current_user=current_user)
     if check == "NOT FOUND THE PROJECT !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -98,7 +99,7 @@ def project_detail(
             },
         )
     if check == "NOT PREMISSION TO SEE THE PROJECT":
-        logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XEM CHI TIẾT DỰ ÁN")
+        logger.warning("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XEM CHI TIẾT DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -107,7 +108,7 @@ def project_detail(
             },
         )
     if check == "THE PROJECT HAVE BEEN DELETE !":
-        logger.error("DỰ ÁN ĐÃ BỊ XÓA !")
+        logger.warning("DỰ ÁN ĐÃ BỊ XÓA !")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -140,7 +141,7 @@ def update_project(
 ):
     check = path_project(db, project_id, current_user, data_update)
     if check == "NOT FOUND THE PROJECT !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -149,7 +150,7 @@ def update_project(
             },
         )
     if check == "NOT PREMISSION TO UPDATE !":
-        logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ CẬP NHẬT DỰ ÁN")
+        logger.warning("BẠN KHÔNG ĐỦ QUYỀN ĐỂ CẬP NHẬT DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -158,7 +159,7 @@ def update_project(
             },
         )
     if check == "THE PROJECT HAVE BEEN DELETE !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -186,7 +187,7 @@ def delete_a_project(
 ):
     check = delete_project(db, project_id, current_user)
     if check == "NOT FOUND THE PROJECT !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -195,7 +196,7 @@ def delete_a_project(
             },
         )
     if check == "NOT PREMISSION TO DELETE !":
-        logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XÓA")
+        logger.warning("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XÓA")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -204,7 +205,7 @@ def delete_a_project(
             },
         )
     if check == "THE PROJECT HAVE BEEN DELETED !":
-        logger.error("DỰ ÁN NÀY ĐÃ XÓA !")
+        logger.warning("DỰ ÁN NÀY ĐÃ XÓA !")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={

@@ -5,10 +5,12 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from ..responses import StandardResponse
 from typing import cast, Any
+from ..core import logger
 
 def validate_error(app: FastAPI):
     @app.exception_handler(RequestValidationError)
     def validate_error(request: Request, exc: RequestValidationError):
+        logger.warning("DỮ LIỆU SAI HOẶC KHÔNG HỢP LỆ")
         error = cast(list[dict[str, Any]], exc.errors())
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

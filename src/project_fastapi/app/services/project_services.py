@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, joinedload, join
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timezone
-from ..models import ProjectModel, UserModel, ProjectMemberModel, ProjectMemberRole
+from ..models import ProjectModel, UserModel, ProjectMemberModel, ProjectMemberRole, TaskModel
 from ..schemas import ProjectInput, ProjectUpdate
 from collections.abc import Callable
 
@@ -106,6 +106,9 @@ def delete_project(db:Session, id: int, current_user: UserModel):
     member_in_project = db.query(ProjectMemberModel).filter(ProjectMemberModel.project_id == the_project.id).all()
     for m in member_in_project:
         m.is_delete = True
+    task_in_that_project = db.query(TaskModel).filter(TaskModel.project_id == the_project.id)
+    for t in task_in_that_project:
+        t.is_delete = True
     db.commit()
     return "DELETE SUCCESSFULL !"
     

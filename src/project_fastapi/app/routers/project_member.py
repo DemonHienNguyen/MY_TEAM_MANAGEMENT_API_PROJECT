@@ -30,7 +30,7 @@ def add_new_member_in_project(
 ):
     check = create_member(db, id, current_user, data_in)
     if check == "NOT FOUND A USER !":
-        logger.error("USER KHÔNG TỒN TẠI !")
+        logger.warning("USER KHÔNG TỒN TẠI !")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -39,6 +39,7 @@ def add_new_member_in_project(
             },
         )
     if check == "USER NOT ACTIVATE !":
+        logger.warning("USER ĐÃ KHÔNG CÒN HOẠT ĐỘNG!")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -47,7 +48,7 @@ def add_new_member_in_project(
             },
         )
     if check == "NOT FOUND THE PROJECT !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -56,7 +57,7 @@ def add_new_member_in_project(
             },
         )
     if check == "NOT PREMISSION TO DO THE PROJECT":
-        logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ LÀM VỚI DỰ ÁN NÀY !")
+        logger.warning("BẠN KHÔNG ĐỦ QUYỀN ĐỂ LÀM VỚI DỰ ÁN NÀY !")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -65,7 +66,7 @@ def add_new_member_in_project(
             },
         )
     if check == "THE PROJECT HAVE BEEN DELETE !":
-        logger.error("DỰ ÁN ĐÃ BỊ XÓA !")
+        logger.warning("DỰ ÁN ĐÃ BỊ XÓA !")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -74,7 +75,7 @@ def add_new_member_in_project(
             },
         )
     if check == "THE USER HAVE IN THE PROJECT !":
-        logger.error("NGƯỜI DÙNG ĐÃ CÓ TRONG DỰ ÁN")
+        logger.warning("NGƯỜI DÙNG ĐÃ CÓ TRONG DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -106,7 +107,7 @@ def get_list_of_member(
 ):
     check = get_members(db, id, current_user)
     if check == "NOT FOUND THE PROJECT !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -115,7 +116,7 @@ def get_list_of_member(
             },
         )
     if check == "NOT PREMISSION TO SEE MEMBER IN THE PROJECT":
-        logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XEM THÀNH VIÊN THUỘC DỰ ÁN!")
+        logger.warning("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XEM THÀNH VIÊN THUỘC DỰ ÁN!")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -124,7 +125,7 @@ def get_list_of_member(
             },
         )
     if check == "THE PROJECT HAVE BEEN DELETE !":
-        logger.error("DỰ ÁN ĐÃ BỊ XÓA !")
+        logger.warning("DỰ ÁN ĐÃ BỊ XÓA !")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -155,7 +156,7 @@ def delete_project_member(
 ):
     check = delete_member(db, id, user_id, current_user)
     if check == "NOT FOUND THE PROJECT !":
-        logger.error("KHÔNG TÌM THẤY DỰ ÁN")
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -164,7 +165,7 @@ def delete_project_member(
             },
         )
     if check == "THE PROJECT HAVE BEEN DELETE !":
-        logger.error("DỰ ÁN ĐÃ BỊ XÓA !")
+        logger.warning("DỰ ÁN ĐÃ BỊ XÓA !")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -173,7 +174,7 @@ def delete_project_member(
             },
         )
     if check == "NOT FOUND USER !":
-        logger.error("USER KHÔNG TỒN TẠI !")
+        logger.warning("USER KHÔNG TỒN TẠI !")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -182,7 +183,7 @@ def delete_project_member(
             },
         )
     if check == "NOT PREMISSION TO DELETE THE MEMBER IN THE PROJECT":
-        logger.error("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XÓA THÀNH VIÊN THUỘC DỰ ÁN!")
+        logger.warning("BẠN KHÔNG ĐỦ QUYỀN ĐỂ XÓA THÀNH VIÊN THUỘC DỰ ÁN!")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
@@ -191,7 +192,7 @@ def delete_project_member(
             },
         )
     if check == "USER NOT IN THAT PROJECT !":
-        logger.error("NGƯỜI DÙNG KHÔNG CÓ TRONG DỰ ÁN ĐÓ!")
+        logger.warning("NGƯỜI DÙNG KHÔNG CÓ TRONG DỰ ÁN ĐÓ!")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -208,7 +209,7 @@ def delete_project_member(
             },
         )
     if check == "NOT DELETE THE OWNER OF PROJECT":
-        logger.error("KHỐNG ĐƯỢC XÓA CHÍNH BẢN THÂN TRONG DỰ ÁN ĐÓ !")
+        logger.warning("KHỐNG ĐƯỢC XÓA CHÍNH BẢN THÂN TRONG DỰ ÁN ĐÓ !")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
