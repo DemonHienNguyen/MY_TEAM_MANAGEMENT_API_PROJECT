@@ -178,6 +178,14 @@ def update_project(
                 "error": "PROJECT HAVE BEEN DELETE !",
             },
         )
+    if check == "THE NAME PROJECT IS DUPLICATE !":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": f"Tên Project bị trùng",
+                "error": "PROJECT NAME HAVE BEEN DUPLICATE !",
+            },
+        )
     logger.info("CẬP NHẬT DỰ ÁN")
     return StandardResponse(
         StatusCode=status.HTTP_200_OK,

@@ -87,6 +87,9 @@ def path_project(db:Session, id:int, current_user: UserModel, update_project: Pr
         return "NOT PREMISSION TO UPDATE !"
     if the_project.is_delete:
         return "THE PROJECT HAVE BEEN DELETE !"
+    the_project_duplicate_name = db.query(ProjectModel).filter(ProjectModel.name == update_project.name, ProjectModel.id != id).first()
+    if the_project_duplicate_name is not None:
+        return "THE NAME PROJECT IS DUPLICATE !"
     for key, value in update_project.model_dump(exclude_unset=True).items():
         setattr(the_project, key, value)
     db.commit()

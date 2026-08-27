@@ -22,12 +22,16 @@ class UserRegister(BaseModel):
             raise ValueError("Mật khẩu phải có ít nhất 1 ký tự thường !")
         if not any(c.isdigit() for c in value):
             raise ValueError("Mật khẩu phải có ít nhất 1 số !")
+        if value.isalnum():
+            raise ValueError("Mật khẩu phải có ít nhất 1 ký tự đặc biệt")
         return value
     @field_validator("full_name")
     @classmethod
     def validate_name(cls, value:  str):
         if not value.strip():
             raise ValueError("Tên không được để trống !")
+        if len(value.strip()) != 2:
+            raise ValueError("Tên phải có ít nhất 2 ký tự không có ký tự khoảng trắng")
         return value
     
 class UserResponse(BaseModel):

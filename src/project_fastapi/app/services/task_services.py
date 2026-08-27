@@ -28,6 +28,17 @@ find_project_by_id: Callable[[Session, int], ProjectModel | None] = (
     .first()
 )
 
+find_attachment_by_id: Callable[[Session, int], list[AttachmentModel]] = (
+    lambda the_data, task_id: the_data.query(AttachmentModel)
+    .filter(AttachmentModel.task_id == task_id)
+    .all()
+)
+
+find_comment_by_id: Callable[[Session, int], list[CommnentModel]] = (
+    lambda the_data, task_id: the_data.query(CommnentModel)
+    .filter(CommnentModel.task_id == task_id)
+    .all()
+)
 
 find_user_by_user_id: Callable[[Session, int], UserModel | None] = (
     lambda the_data, user_id: the_data.query(UserModel)
@@ -122,10 +133,12 @@ def get_all_task_in_project(
         the_task = the_task.filter(TaskModel.title.ilike(f"%{title}%"))
 
     if sort_by == "asc":
-        the_task = the_task.order_by(TaskModel.due_date.asc())
+        the_task = the_task.order_by(TaskModel.create_at.asc())
     if sort_by == "desc":
-        the_task = the_task.order_by(TaskModel.due_date.desc())
+        the_task = the_task.order_by(TaskModel.create_at.desc())
     if limit is not None:
+        if limit > 50:
+            limit = 50
         the_task = the_task.limit(limit=limit)
     if offset is not None:
         the_task = the_task.offset(offset=offset)
@@ -210,7 +223,10 @@ def delete_task(db: Session, current_user: UserModel, task_id: int):
         return "PROJECT NOT EXISTS !"
     if check_project_exists.is_delete:
         return "PROJECT HAVE DELETED !"
-
+    relation_attachement = find_attachment_by_id(db, task_id)
+    relation_comment = find_comment_by_id(db, task_id)
+    if len(relation_attachement) > 0 or len(relation_comment) > 0:
+        return "NOT DELETED HAVE DATA"
     if (
         check_task_exists.create_by != current_user.id
         and check_project_exists.owner_id != current_user.id
@@ -270,6 +286,7 @@ async def upload_file(
     check_user_in_project = find_member_in_project(
         db, check_task_exists.project_id, current_user.id
     )
+    
     if check_user_in_project is None:
         return "USER NOT IN PROJECT !"
     check_project_exists = find_project_by_id(db, check_user_in_project.project_id)

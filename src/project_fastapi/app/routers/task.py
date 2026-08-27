@@ -405,6 +405,14 @@ def delete_a_task(
                 "error": "YOU DO NOT HAVE PREMISSION TO DELETE TASK !",
             },
         )
+    if check == "NOT DELETED HAVE DATA":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Task trong project này vẫn còn dữ liệu chưa được xóa !",
+                "error": "THE TASK STILL HAVE DATA",
+            },
+        )
     if check == "DELETE SUCCESSFUL":
         return
 

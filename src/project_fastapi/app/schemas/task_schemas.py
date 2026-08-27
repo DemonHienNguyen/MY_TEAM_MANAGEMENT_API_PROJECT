@@ -73,13 +73,13 @@ class TaskResponseButForGetListTask(BaseModel):
     id: int 
     project_id: int
     title: str 
-    description: str
+    description: str | None
     comments: list[CommentResponse]
     attachments: list[AttachmentResponse]
     assignee_id: int 
     status: str
     priority: str
-    due_date: datetime 
+    due_date: datetime | None
     create_at: datetime 
     create_by: int
     

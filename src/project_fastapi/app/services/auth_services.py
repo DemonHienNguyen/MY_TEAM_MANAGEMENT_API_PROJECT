@@ -14,7 +14,7 @@ def post_a_user(db:Session, data_in: UserRegister):
     if check: 
         return "DUPLICATE USER EMAIL"
     new_data = UserModel(
-        email = data_in.email,
+        email = data_in.email.strip().lower(),
         password_hash = get_password_hash(data_in.password),
         full_name = data_in.full_name,
         created_at = datetime.now(timezone.utc)

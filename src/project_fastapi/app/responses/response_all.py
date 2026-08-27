@@ -9,7 +9,7 @@ class StandardResponse(BaseModel, Generic[T]):
     Message: str
     Error: str | list[dict[str, Any]] | None 
     Data: T 
-    TimeStamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    TimeStamp: datetime | str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     Path: str 
     
     model_config = ConfigDict(

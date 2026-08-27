@@ -7,6 +7,7 @@ from ..responses import StandardResponse
 from ..services import search_user_by_name_email_or_status
 from ..dependencies import get_current_user, Require_Admin, Require_Admin_and_User
 from ..core import limit
+from typing import Literal
 
 router = APIRouter(prefix="/user", tags=["User"])
 
@@ -45,11 +46,14 @@ def get_list_of_user(
     name: str | None = Query(default=None),
     email: str | None = Query(default=None),
     statu: bool | None = Query(default=None),
+    domain: Literal["@example.com", "@example.org", "@example.net", "@gmail.com"] | None = Query(default=None),
+    skip: int  = Query(default=0),
+    limit: int  = Query(default=100)
 ):
     return StandardResponse(
         StatusCode=status.HTTP_200_OK,
         Message="Danh sách các người dùng !",
         Error=None,
-        Data=search_user_by_name_email_or_status(db, name, email, statu),
+        Data=search_user_by_name_email_or_status(db, name, email, statu, domain, skip, limit),
         Path=request.url.path,
     )
