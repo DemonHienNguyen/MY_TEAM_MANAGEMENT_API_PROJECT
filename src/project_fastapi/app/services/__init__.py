@@ -1,7 +1,12 @@
 from .auth_services import post_a_user, login
 from .user_service import search_user_by_name_email_or_status
 from .token_services import create_access
-from .project_member_services import create_member, get_members, delete_member
+from .project_member_services import (
+    create_member,
+    get_members,
+    delete_member,
+    patch_member,
+)
 from .task_services import (
     post_a_task_in_project,
     get_all_task_in_project,
@@ -9,7 +14,9 @@ from .task_services import (
     patch_task,
     delete_task,
     create_a_new_comment,
-    upload_file
+    upload_file,
+    get_all_task_you_assign_in_project,
+    count_task_in_project,
 )
 from .project_services import (
     post_project,
@@ -38,5 +45,8 @@ __all__ = [
     "patch_task",
     "delete_task",
     "create_a_new_comment",
-    "upload_file"
+    "upload_file",
+    "get_all_task_you_assign_in_project",
+    "count_task_in_project",
+    "patch_member",
 ]

@@ -12,7 +12,7 @@ class ProjectMemberInput(BaseModel):
 class ProjectMemberOutput(BaseModel):
     project_id: int 
     user_id: int 
-    role: Literal[ProjectMemberRole.MEMBER, ProjectMemberRole.OWNER] 
+    role: Literal[ProjectMemberRole.MEMBER, ProjectMemberRole.OWNER, ProjectMemberRole.VIEWER] 
     joined_at: datetime 
 
     model_config = ConfigDict(
@@ -22,9 +22,10 @@ class ProjectMemberOutput(BaseModel):
 class ProjectMemberOutputButForGetMember(BaseModel):
     project_id: int 
     user: UserResponseButForGetProjectMember
-    role: Literal[ProjectMemberRole.MEMBER, ProjectMemberRole.OWNER] 
+    role: Literal[ProjectMemberRole.MEMBER, ProjectMemberRole.OWNER,ProjectMemberRole.VIEWER] 
     joined_at: datetime 
 
     model_config = ConfigDict(
         from_attributes=True, str_strip_whitespace=True, extra="forbid"
     )
+    

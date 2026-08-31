@@ -12,7 +12,8 @@ class TaskStatus(str, enum.Enum):
 class TaskPriority(str, enum.Enum):
     LOW = "LOW"
     MEDIUM = "MEDIUM"
-    HIGH = "HIGH"    
+    HIGH = "HIGH"
+    URGENT = "URGENT"    
 
 class TaskModel(Base):
     __tablename__ = "task"
@@ -23,10 +24,12 @@ class TaskModel(Base):
     assignee_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     status: Mapped[str] = mapped_column(Enum(TaskStatus), nullable=False)
     priority: Mapped[str] = mapped_column(Enum(TaskPriority), nullable=False)
+    priority_num: Mapped[int] = mapped_column(Integer)
     due_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     create_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     create_by: Mapped[int] = mapped_column(Integer, nullable=False)
     is_delete: Mapped[bool] = mapped_column(Boolean, default= False)
+    completed_at : Mapped[datetime] = mapped_column(DateTime, nullable=True)
     
     project = relationship("ProjectModel", back_populates="tasks")
     user = relationship("UserModel", back_populates="tasks")

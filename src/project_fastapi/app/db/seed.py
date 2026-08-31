@@ -78,14 +78,20 @@ def seed_data():
             
         tasks:list[TaskModel] = []
         statuses = [TaskStatus.IN_PROGRESS, TaskStatus.DONE, TaskStatus.TODO]
-        priorities = [TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM]
-
+        priorities = [TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.URGENT]
+        priorities_num = {
+            TaskPriority.URGENT: 1,
+            TaskPriority.HIGH : 2,
+            TaskPriority.MEDIUM: 3,
+            TaskPriority.LOW: 4
+        }
         for project in projects:
             current_project_member_ids = [
                 m.user_id for m in project_members if m.project_id == project.id
         ]
             for _ in range((10)):
                 created_date = datetime.now() - timedelta(days=random.randint(1, 10))
+                priority = random.choice(priorities)
                 task = TaskModel(
                     project_id=project.id,
                     title=fake.sentence(nb_words=6),
@@ -94,7 +100,8 @@ def seed_data():
                         current_project_member_ids
                     ), 
                     status=random.choice(statuses),
-                    priority=random.choice(priorities),
+                    priority=priority,
+                    priority_num = priorities_num[priority],
                     due_date=created_date + timedelta(days=random.randint(5, 15)),
                     create_at=created_date,
                     create_by = random.choice(current_project_member_ids)

@@ -9,6 +9,7 @@ from .task_schemas import (
     TaskResponse,
     TaskUpdate,
     TaskResponseButForGetListTask,
+    TaskResponseButForGetDetailTask,
 )
 from .user_schemas import (
     UserLogin,
@@ -16,6 +17,7 @@ from .user_schemas import (
     UserResponse,
     UserResponseLogin,
     UserResponseButForGetProjectMember,
+    UserResponseButForGetDetailProject,
 )
 from .token_schemas import RefreshTokenRequest
 from .comment_schemas import CommentCreate, CommentResponse
@@ -40,4 +42,7 @@ __all__ = [
     "CommentCreate",
     "CommentResponse",
     "TaskResponseButForGetListTask",
+    "TaskResponseButForGetDetailTask",
+    "AttachmentResponse",
+    "UserResponseButForGetDetailProject"
 ]

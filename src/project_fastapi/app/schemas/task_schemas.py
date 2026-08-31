@@ -4,16 +4,18 @@ from ..models import TaskStatus, TaskPriority
 from typing import Literal
 from .comment_schemas import CommentResponse
 from .attachment_schemas import AttachmentResponse
+from datetime import timedelta
+from .user_schemas import UserResponseButForGetDetailTask
 
 class TaskInput(BaseModel):
-    title: str = Field(..., examples=["Dự án làm game tai ương"])
+    title: str = Field(...,min_length=5, max_length=100, examples=["Dự án làm game tai ương"])
     description: str = Field(default="")
-    assignee_id: int = Field(..., examples=[2])
+    assignee_id: int | None = Field(default=None)
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
-    priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM] = Field(..., examples=[TaskPriority.HIGH])
+    priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.URGENT] = Field(..., examples=[TaskPriority.HIGH])
     due_date: datetime | None = Field(default=None, examples=[None])
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    @model_validator(mode="after")
+    @model_validator(mode="after")    
     def check_due_date_after_created_at(self):
         if self.due_date is not None:
             due = self.due_date
@@ -23,16 +25,17 @@ class TaskInput(BaseModel):
             if created.tzinfo is None:
                 created = created.replace(tzinfo=timezone.utc)
 
-            if due <= created:
-                raise ValueError("due_date phải diễn ra sau create_at!")
-
+            if due - timedelta(hours=1)<= created :
+                raise ValueError("due_date phải diễn ra sau create_at ít nhất 1 giờ!")
+        else:
+            self.due_date = self.create_at + timedelta(days=3)
         return self
 class TaskUpdate(BaseModel):
-    title: str = Field(..., examples=["Dự án làm game tai ương"])
+    title: str = Field(...,min_length=5, max_length=100, examples=["Dự án làm game tai ương"])
     description: str | None = Field(default=None, examples=[None])
-    assignee_id: int = Field(..., examples=[2])
+    assignee_id: int | None = Field(default=None, examples=[None])
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
-    priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM] = Field(..., examples=[TaskPriority.HIGH])
+    priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.URGENT] = Field(..., examples=[TaskPriority.HIGH])
     due_date: datetime | None = Field(default= None, examples=[None])
     create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
@@ -46,9 +49,10 @@ class TaskUpdate(BaseModel):
             if created.tzinfo is None:
                 created = created.replace(tzinfo=timezone.utc)
 
-            if due <= created:
-                raise ValueError("due_date phải diễn ra sau create_at!")
-
+            if due - timedelta(hours=1)<= created :
+                raise ValueError("due_date phải diễn ra sau create_at ít nhất 1 giờ!")
+        else:
+            self.due_date = self.create_at + timedelta(days=3)
         return self
 class TaskResponse(BaseModel):
     id: int 
@@ -89,3 +93,25 @@ class TaskResponseButForGetListTask(BaseModel):
         str_strip_whitespace=True,
         extra="forbid"
     )
+    
+class TaskResponseButForGetDetailTask(BaseModel):
+    id: int 
+    project_id: int
+    title: str 
+    description: str | None
+    comments: list[CommentResponse]
+    attachments: list[AttachmentResponse]
+    assign: UserResponseButForGetDetailTask
+    status: str
+    priority: str
+    due_date: datetime | None
+    create_at: datetime 
+    create: UserResponseButForGetDetailTask
+    
+    
+    model_config = ConfigDict(
+        from_attributes=True,
+        str_strip_whitespace=True,
+        extra="forbid"
+    )
+    

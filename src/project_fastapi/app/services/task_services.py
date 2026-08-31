@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_, Null
 from ..schemas import TaskInput, TaskUpdate, CommentCreate
 from ..models import (
     UserModel,
@@ -8,13 +9,17 @@ from ..models import (
     TaskModel,
     CommnentModel,
     AttachmentModel,
+    TaskStatus,
 )
 from collections.abc import Callable
+from datetime import datetime, timezone
 from fastapi import UploadFile
 from ..utils import save_a_file
+from typing import Any
 
 find_member_in_project: Callable[[Session, int, int], ProjectMemberModel | None] = (
     lambda the_data, project_id, member_id: the_data.query(ProjectMemberModel)
+    .options(joinedload(ProjectMemberModel.user))
     .filter(
         ProjectMemberModel.user_id == member_id,
         ProjectMemberModel.project_id == project_id,
@@ -56,6 +61,8 @@ find_task_by_task_id_and_user_id: Callable[[Session, int], TaskModel | None] = (
 def post_a_task_in_project(
     db: Session, id: int, data: TaskInput, curren_user: UserModel
 ):
+    if data.assignee_id is None:
+        data.assignee_id = curren_user.id
     check_project = find_project_by_id(db, id)
     check_member = find_member_in_project(db, id, curren_user.id)
     check_user = find_user_by_user_id(db, data.assignee_id)
@@ -105,6 +112,8 @@ def get_all_task_in_project(
     limit: int | None,
     offset: int | None,
     sort_by: str | None,
+    is_overdue: bool,
+    sort_by_priority: bool
 ):
     check_project = find_project_by_id(db, project_id)
     check_member_in_project = find_member_in_project(db, project_id, current_user.id)
@@ -130,22 +139,52 @@ def get_all_task_in_project(
     if assignee is not None:
         the_task = the_task.filter(TaskModel.assignee_id == assignee)
     if title is not None:
-        the_task = the_task.filter(TaskModel.title.ilike(f"%{title}%"))
+        the_task = the_task.filter(
+            or_(
+                TaskModel.description.ilike(f"%{title}%"),
+                TaskModel.title.ilike(f"%{title}%")
+            
+            )
+        )
+
+    if is_overdue:
+        the_task = the_task.filter(TaskModel.due_date < datetime.now(timezone.utc), TaskModel.status != TaskStatus.DONE)
+    order_conditions:list[TaskModel] = []
+    if sort_by_priority:
+        order_conditions.append(TaskModel.priority_num.asc())
 
     if sort_by == "asc":
-        the_task = the_task.order_by(TaskModel.create_at.asc())
-    if sort_by == "desc":
-        the_task = the_task.order_by(TaskModel.create_at.desc())
+        order_conditions.append(TaskModel.create_at.asc())
+    elif sort_by == "desc":
+        order_conditions.append(TaskModel.create_at.desc())
+
+    if order_conditions:
+        the_task = the_task.order_by(*order_conditions)
     if limit is not None:
-        if limit > 50:
-            limit = 50
+        if limit > 20:
+            limit = 20
         the_task = the_task.limit(limit=limit)
     if offset is not None:
         the_task = the_task.offset(offset=offset)
     return the_task.all()
+def get_all_task_you_assign_in_project(db:Session, current_user: UserModel):
+    return db.query(TaskModel).filter(TaskModel.assignee_id == current_user.id).all()
 
-
-def get_detail_task_by_task_id(db: Session, task_id: int, current_user: UserModel):
+def count_task_in_project(db: Session, current_user: UserModel, id: int):
+    check_user_in_project = find_member_in_project(db, id, current_user.id)
+    if check_user_in_project is None:
+        return "YOU DONT HAVE IN THIS PROJECT"
+    done_task = 0
+    the_task = db.query(TaskModel).filter(TaskModel.project_id == id).all()
+    for t in the_task:
+        if t.status == TaskStatus.DONE:
+            done_task += 1
+    return {
+        "total_tasks": len(the_task),
+        "done_tasks": done_task
+    }
+            
+def get_detail_task_by_task_id(db: Session, task_id: int, current_user: UserModel) -> dict[str, Any] | str:
     check_task_exists = find_task_by_task_id_and_user_id(db, task_id)
     if check_task_exists is None:
         return "NOT FOUND THAT TASK !"
@@ -161,7 +200,20 @@ def get_detail_task_by_task_id(db: Session, task_id: int, current_user: UserMode
         return "PROJECT NOT EXISTS !"
     if check_project_exists.is_delete:
         return "PROJECT HAVE DELETED !"
-    return check_task_exists
+    return {
+        "id": check_task_exists.id,
+        "project_id": check_task_exists.project_id,
+        "title": check_task_exists.title,
+        "description": check_task_exists.description,
+        "comments": check_task_exists.comments,
+        "attachments": check_task_exists.attachments,
+        "assign": find_user_by_user_id(db, check_task_exists.assignee_id),
+        "status": check_task_exists.status,
+        "priority": check_task_exists.priority,
+        "due_date": check_task_exists.due_date,
+        "create_at": check_task_exists.create_at,
+        "create": find_user_by_user_id(db, check_task_exists.create_by)
+    }
 
 
 def patch_task(
@@ -184,27 +236,37 @@ def patch_task(
         return "PROJECT HAVE DELETED !"
 
     if (
-        check_task_exists.create_by != current_user.id
+        check_task_exists.assignee_id != current_user.id
         and check_project_exists.owner_id != current_user.id
     ):
         return "USER NOT HAVE PREMISSION TO UPDATE TASK !"
-
-    check_assignee_exists = find_user_by_user_id(db, data_update.assignee_id)
-    if check_assignee_exists is None:
-        return "ASSIGNEE NOT EXISTS !"
-    if not check_assignee_exists.is_active:
-        return "THAT ASSIGNEE IS NOT ACTIVATE"
-    check_assignee_in_project = find_member_in_project(
-        db, check_task_exists.project_id, data_update.assignee_id
-    )
-    if check_assignee_in_project is None:
-        return "ASSIGNEE NOT IN PROJECT !"
-
-    for key, value in data_update.model_dump(exclude_unset=True).items():
-        setattr(check_task_exists, key, value)
-    db.commit()
-    db.refresh(check_task_exists)
-    return check_task_exists
+    if check_project_exists.owner_id == current_user.id:
+        if data_update.assignee_id is None:
+            data_update.assignee_id = current_user.id
+        check_assignee_exists = find_user_by_user_id(db, data_update.assignee_id)
+        if check_assignee_exists is None:
+            return "ASSIGNEE NOT EXISTS !"
+        if not check_assignee_exists.is_active:
+            return "THAT ASSIGNEE IS NOT ACTIVATE"
+        check_assignee_in_project = find_member_in_project(
+            db, check_task_exists.project_id, data_update.assignee_id
+        )
+        if check_assignee_in_project is None:
+            return "ASSIGNEE NOT IN PROJECT !"
+        for key, value in data_update.model_dump(exclude_unset=True).items():
+            setattr(check_task_exists, key, value)
+        if data_update.status == TaskStatus.DONE:
+            check_task_exists.completed_at = datetime.now(timezone.utc)
+        else:
+            check_task_exists.completed_at = None
+        db.commit()
+        db.refresh(check_task_exists)
+        return check_task_exists
+    if check_task_exists.assignee_id == current_user.id:
+        check_task_exists.status = data_update.status
+        db.commit()
+        db.refresh(check_task_exists)
+        return check_task_exists
 
 
 def delete_task(db: Session, current_user: UserModel, task_id: int):
@@ -223,6 +285,8 @@ def delete_task(db: Session, current_user: UserModel, task_id: int):
         return "PROJECT NOT EXISTS !"
     if check_project_exists.is_delete:
         return "PROJECT HAVE DELETED !"
+    if check_task_exists.status in [TaskStatus.DONE, TaskStatus.IN_PROGRESS]:
+        return "THIS TASK IS IN PROGRESS OR DONE !"
     relation_attachement = find_attachment_by_id(db, task_id)
     relation_comment = find_comment_by_id(db, task_id)
     if len(relation_attachement) > 0 or len(relation_comment) > 0:
@@ -286,7 +350,7 @@ async def upload_file(
     check_user_in_project = find_member_in_project(
         db, check_task_exists.project_id, current_user.id
     )
-    
+
     if check_user_in_project is None:
         return "USER NOT IN PROJECT !"
     check_project_exists = find_project_by_id(db, check_user_in_project.project_id)
@@ -312,3 +376,7 @@ async def upload_file(
         Exception("Lỗi liên quan đến database !")
 
     return new_attachment_data
+
+
+
+    

@@ -50,7 +50,17 @@ class UserResponse(BaseModel):
 
 class UserResponseButForGetProjectMember(BaseModel):
     id: int
+    # email: str
+    full_name: str 
+class UserResponseButForGetDetailProject(BaseModel):
+    id: int
     email: str
+    full_name: str
+    model_config = ConfigDict(
+        from_attributes=True
+    ) 
+class UserResponseButForGetDetailTask(BaseModel):
+    id: int
     full_name: str 
 
 class UserLogin(BaseModel):

@@ -1,22 +1,26 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from datetime import datetime
 
 
 class ProjectInput(BaseModel):
-    name: str = Field(...,min_length=1, max_length=255, examples=["Dự án VIP"])
+    name: str = Field(...,min_length=1, max_length=50, examples=["Dự án VIP"])
     description: str = Field(default="", examples=["Dự án này làm những gì..."])
-
+    @model_validator(mode="after")
+    def check_due_date_after_created_at(self):
+        if "test" in self.name.lower().strip():
+            raise ValueError("Khong duoc chua tu 'test' trong ten du an")
+        return self
 
 class ProjectUpdate(BaseModel):
     name: str = Field(...,min_length=1, max_length=255, examples=["Dự án VIP"])
-    description: str = Field(default="", examples=["Dự án này làm những gì..."])
+    description: str = Field(default="", max_length=500, examples=["Dự án này làm những gì..."])
 
 
 class ProjectResponse(BaseModel):
     id: int
     name: str
     description: str
-    owner_id: int
+    # owner_id: int
     create_at: datetime
     is_delete: bool
     

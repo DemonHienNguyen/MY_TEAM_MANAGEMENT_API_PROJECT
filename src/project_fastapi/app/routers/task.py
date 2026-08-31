@@ -18,6 +18,7 @@ from ..schemas import (
     CommentCreate,
     CommentResponse,
     AttachmentResponse,
+    TaskResponseButForGetDetailTask,
 )
 from ..models import UserModel, TaskPriority, TaskStatus
 from ..services import (
@@ -28,13 +29,15 @@ from ..services import (
     delete_task,
     create_a_new_comment,
     upload_file,
+    get_all_task_you_assign_in_project,
+    count_task_in_project,
 )
 from ..responses import StandardResponse
 from ..dependencies import get_current_user
 from ..core import limit
 from typing import Literal
 
-router = APIRouter(prefix="/task", tags=["Task"])
+router = APIRouter(tags=["Task"])
 
 
 @router.post(
@@ -99,7 +102,7 @@ def create_new_task(
             detail={
                 "message": "Người được giao task đã ngừng hoạt động !",
                 "error": "THIS ASSIGNEE NOT ACTIVATE !",
-            }
+            },
         )
     return StandardResponse(
         StatusCode=status.HTTP_201_CREATED,
@@ -130,10 +133,12 @@ def get_list_of_task_filter(
         default=None
     ),
     assignee: int = Query(default=None),
-    title: str = Query(default=None),
-    limit: int = Query(default=None),
+    keyword: str = Query(default=None, description="tìm được cả title lẫn description"),
+    limit: int = Query(default=5),
     offset: int = Query(default=None),
     sort_by: Literal["asc", "desc"] = Query(default="asc"),
+    is_overdue: bool = Query(default=False),
+    sort_by_priority: bool = Query(default=False)
 ):
     check = get_all_task_in_project(
         db,
@@ -142,10 +147,12 @@ def get_list_of_task_filter(
         statu,
         priority,
         assignee,
-        title,
+        keyword,
         limit,
         offset,
         sort_by,
+        is_overdue,
+        sort_by_priority
     )
 
     if check == "NOT FOUND THE PROJECT ! ":
@@ -181,9 +188,47 @@ def get_list_of_task_filter(
     )
 
 
+@router.get("/projects/{id}/tasks/count", status_code=status.HTTP_200_OK)
+def count_done_task(
+    request: Request,
+    db: DataBase,
+    current_user: UserModel = Depends(get_current_user),
+    id: int = Path(...),
+):
+    check = count_task_in_project(db, current_user, id)
+    if check == "YOU DONT HAVE IN THIS PROJECT":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message":"Bạn không thuộc trong dự án này !",
+                "error":"YOU DONT HAVE IN THIS PROJECT !"
+            }
+        )
+    return check
+
+
+@router.get(
+    "/tasks/my-tasks",
+    response_model=StandardResponse[list[TaskResponseButForGetListTask]],
+    status_code=status.HTTP_200_OK,
+    summary="Xem danh sách task mà mình được phụ trách của toàn hệ thống",
+    description="XEM NHỮNG TASK MÀ MÌNH ĐƯỢC GIAO TRONG TOÀN BỘ PROJECT",
+)
+def get_all_task_user_have_assgin(
+    request: Request, db: DataBase, current_user: UserModel = Depends(get_current_user)
+):
+    return StandardResponse(
+        StatusCode=status.HTTP_200_OK,
+        Message="Danh sách các task mà bạn phụ trách",
+        Data=get_all_task_you_assign_in_project(db, current_user),
+        Error=None,
+        Path=request.url.path,
+    )
+
+
 @router.get(
     "/tasks/{task_id}",
-    response_model=StandardResponse[TaskResponseButForGetListTask],
+    response_model=StandardResponse[TaskResponseButForGetDetailTask],
     status_code=status.HTTP_200_OK,
     summary="Xem chi tiết task đó",
     description="AI CŨNG CÓ QUYỀN XEM CHI TIẾT DỰ ÁN NHƯNG CHỈ THUỘC DỰ ÁN ĐÓ THÔI, KHÔNG ĐƯỢC LỘ TASK TỪ DỰ ÁN KHÁC",
@@ -323,7 +368,7 @@ def update_task(
             detail={
                 "message": "Người được giao task đã ngừng hoạt động !",
                 "error": "THIS ASSIGNEE NOT ACTIVATE !",
-            }
+            },
         )
     if check == "ASSIGNEE NOT IN PROJECT !":
         raise HTTPException(
@@ -344,7 +389,7 @@ def update_task(
 
 
 @router.delete(
-    "/{task_id}",
+    "/tasks/{task_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Xóa task trong dự án (Xóa mềm)",
     description="CHỈ DÀNH CHO NGƯỜI TẠO RA TASK ĐÓ VỚI NGƯỜI CHỦ TRÌ CỦA DỰ ÁN MỚI ĐƯỢC PHÉP XÓA",
@@ -413,16 +458,24 @@ def delete_a_task(
                 "error": "THE TASK STILL HAVE DATA",
             },
         )
+    if check == "THIS TASK IS IN PROGRESS OR DONE !":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Task trong project này vẫn còn trong quá trình làm hoặc đã xong !",
+                "error": "THE TASK IS IN PROGRESS OR DONE",
+            },
+        )
     if check == "DELETE SUCCESSFUL":
         return
 
 
 @router.post(
-    "/{task_id}/comments",
+    "/tasks/{task_id}/comments",
     response_model=StandardResponse[CommentResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Thêm Comment vào trong task thuộc dự án",
-    description="Ai trong  dự án đều có thể thêm comment vào trong dự án này"
+    description="Ai trong  dự án đều có thể thêm comment vào trong dự án này",
 )
 def add_a_commment(
     request: Request,
@@ -482,11 +535,11 @@ def add_a_commment(
 
 
 @router.post(
-    "/{task_id}/attachments",
+    "/tasks/{task_id}/attachments",
     response_model=StandardResponse[AttachmentResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Thêm file vào trong task",
-    description="AI TRONG DỰ ÁN ĐỀU CÓ THỂ THÊM FILE VÀO TRONG DỰ ÁN ĐÓ "
+    description="AI TRONG DỰ ÁN ĐỀU CÓ THỂ THÊM FILE VÀO TRONG DỰ ÁN ĐÓ ",
 )
 async def create_a_attachments(
     request: Request,

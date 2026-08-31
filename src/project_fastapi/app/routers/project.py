@@ -1,8 +1,13 @@
 from fastapi import APIRouter, status, HTTPException, Depends, Query, Path
 from ..db import DataBase
 from fastapi.requests import Request
-from ..models import UserModel
-from ..schemas import ProjectInput, ProjectResponse, ProjectUpdate
+from ..models import UserModel, ProjectMemberRole
+from ..schemas import (
+    ProjectInput,
+    ProjectResponse,
+    ProjectUpdate,
+    UserResponseButForGetDetailProject,
+)
 from ..responses import StandardResponse
 from ..services import (
     post_project,
@@ -13,6 +18,7 @@ from ..services import (
 )
 from ..dependencies import get_current_user, Require_Admin_and_User
 from ..core import limit, logger
+from typing import Literal
 
 router = APIRouter(prefix="/projects", tags=["Project"])
 
@@ -25,7 +31,7 @@ router = APIRouter(prefix="/projects", tags=["Project"])
     summary="Tạo một dự án mới",
     description="TẠO MỘT DỰ ÁN MỚI DO NGƯỜI DÙNG TỰ TẠO RA, CÓ THỂ CHECK TÊN DỰ ÁN KHÔNG ĐƯỢC TRÙNG",
 )
-@limit.limit("5/minute")  # type: ignore
+@limit.limit("10/minute")  # type: ignore
 def create_new_project(
     request: Request,
     db: DataBase,
@@ -47,6 +53,15 @@ def create_new_project(
             detail={
                 "message": "Tên dự án bị trùng !",
                 "error": "NAME THE PROJECT IS DUPLICATE",
+            },
+        )
+    if check == "NOT OVER 5 PROJECT !":
+        logger.warning("KHÔNG ĐƯỢC QUÁ 5 DỰ ÁN")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Người dùng không được thêm hơn quá 5 dự án!",
+                "error": "NOT ADD MORE PROJECT IF IS MORE THAN 5 !",
             },
         )
     logger.info("TẠO DỰ ÁN THÀNH CÔNG")
@@ -72,12 +87,15 @@ def get_all_project(
     db: DataBase,
     current_user: UserModel = Depends(get_current_user),
     keyword: str | None = Query(default=None),
+    role: Literal[ProjectMemberRole.OWNER, ProjectMemberRole.MEMBER] = Query(
+        default=None
+    ),
 ):
     logger.info("LẤY DANH SÁCH DỰ ÁN THÀNH CÔNG !")
     return StandardResponse(
         StatusCode=status.HTTP_200_OK,
         Message="Lấy danh sách dự án thành công !",
-        Data=get_projects(db, current_user, keyword),
+        Data=get_projects(db, current_user, keyword, role),
         Error=None,
         Path=request.url.path,
     )
@@ -85,7 +103,7 @@ def get_all_project(
 
 @router.get(
     "/{project_id}",
-    response_model=StandardResponse[ProjectResponse],
+    response_model=StandardResponse[dict[str, UserResponseButForGetDetailProject | ProjectResponse]],
     status_code=status.HTTP_200_OK,
     summary="Lấy chi tiết dự án đó",
     description="NGƯỜI DÙNG SẼ LẤY CHI TIẾT DỰ ÁN ĐÓ, NHỮNG NGƯỜI THUỘC DỰ ÁN ĐÓ MỚI CÓ THỂ XEM ĐƯỢC, KHÔNG CHO NGƯỜI NGOÀI XEM",
@@ -97,7 +115,9 @@ def project_detail(
     project_id: int = Path(...),
     current_user: UserModel = Depends(get_current_user),
 ):
-    check = get_detail_project(db, project_id=project_id, current_user=current_user)
+    check, user = get_detail_project(
+        db, project_id=project_id, current_user=current_user
+    )
     if check == "NOT FOUND THE PROJECT !":
         logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
         raise HTTPException(
@@ -125,12 +145,13 @@ def project_detail(
                 "error": "THE PROJECT HAVE BEEN DELETE !",
             },
         )
+    format_data:dict[str, UserResponseButForGetDetailProject | ProjectResponse] = {"data": check, "owner_infor": user}
     logger.info("LẤY THÀNH CÔNG CHI TIẾT DỰ ÁN")
     return StandardResponse(
         StatusCode=status.HTTP_200_OK,
         Error=None,
         Message="Chi tiết dự án !",
-        Data=check,
+        Data=format_data,
         Path=request.url.path,
     )
 
@@ -176,6 +197,15 @@ def update_project(
             detail={
                 "message": f"Project có id là {project_id} đã bị xóa",
                 "error": "PROJECT HAVE BEEN DELETE !",
+            },
+        )
+    if check == "NOT UPDATE THE_NAME_OF THE_PROJECT AFTER 7 DAYS":
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": f"Project có id là {project_id} khong duoc cap nhat nua do qua 7 ngay",
+                "error": "NOT UPDATE THE_NAME_OF THE_PROJECT AFTER 7 DAYS !",
             },
         )
     if check == "THE NAME PROJECT IS DUPLICATE !":
@@ -236,6 +266,15 @@ def delete_a_project(
                 "message": "Dự án này đã bị xóa !",
                 "error": "THE PROJECT ARE HAVE BEEN DELETED ",
             },
+        )
+    if check == "NOT HAVE DELETE THE PROJECT !":
+        logger.warning("DỰ ÁN NÀY CHƯA ĐƯỢC XÓA !")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Cần xóa bớt thành viên trước !",
+                "error": "NEED TO DELETE MEMBER FIRST !"
+            }
         )
     if check == "DELETE SUCCESSFULL !":
         logger.info("XÓA THÀNH CÔNG")

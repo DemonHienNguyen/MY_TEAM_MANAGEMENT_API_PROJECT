@@ -7,6 +7,7 @@ import enum
 class ProjectMemberRole(str, enum.Enum):
     OWNER = "OWNER"
     MEMBER = "MEMBER"
+    VIEWER = "VIEWER"
 
 class ProjectMemberModel(Base):
     __tablename__ = "project_members"
