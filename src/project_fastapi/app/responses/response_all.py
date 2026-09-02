@@ -1,6 +1,7 @@
+from datetime import UTC, datetime
+from typing import Any, Generic, TypeVar
+
 from pydantic import BaseModel, ConfigDict, Field
-from typing import TypeVar, Generic, Any
-from datetime import datetime, timezone
 
 T = TypeVar("T")
 
@@ -9,7 +10,7 @@ class StandardResponse(BaseModel, Generic[T]):
     Message: str
     Error: str | list[dict[str, Any]] | None 
     Data: T 
-    TimeStamp: datetime | str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    TimeStamp: datetime | str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     Path: str 
     
     model_config = ConfigDict(

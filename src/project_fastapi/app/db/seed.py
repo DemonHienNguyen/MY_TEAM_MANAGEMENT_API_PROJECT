@@ -1,9 +1,21 @@
-from faker import Faker
-from .database import SessionLocal
-from ..models import ProjectMemberModel, ProjectModel, UserModel, TaskModel, UserRole, ProjectMemberRole, TaskPriority, TaskStatus
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
+
+from faker import Faker
+
 from ..core import get_password_hash
+from ..models import (
+    ProjectMemberModel,
+    ProjectMemberRole,
+    ProjectModel,
+    TaskModel,
+    TaskPriority,
+    TaskStatus,
+    UserModel,
+    UserRole,
+)
+from .database import SessionLocal
+
 fake = Faker("vi_VN")
 
 def seed_data():
@@ -89,7 +101,7 @@ def seed_data():
             current_project_member_ids = [
                 m.user_id for m in project_members if m.project_id == project.id
         ]
-            for _ in range((10)):
+            for _ in range(10):
                 created_date = datetime.now() - timedelta(days=random.randint(1, 10))
                 priority = random.choice(priorities)
                 task = TaskModel(

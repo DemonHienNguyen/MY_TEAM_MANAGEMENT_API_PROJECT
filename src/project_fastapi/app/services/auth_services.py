@@ -1,11 +1,18 @@
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from ..models import UserModel
-from ..schemas import UserRegister, UserLogin
-from ..core import get_password_hash, verify_password, create_access_token, create_refresh_token
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
+
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from ..core import (
+    create_access_token,
+    create_refresh_token,
+    get_password_hash,
+    verify_password,
+)
+from ..models import UserModel
+from ..schemas import UserLogin, UserRegister
 
 find_user_by_email: Callable[[Session, str], UserModel | None] = lambda the_data, user_email: the_data.query(UserModel).filter(UserModel.email == user_email).first()
 
@@ -17,7 +24,7 @@ def post_a_user(db:Session, data_in: UserRegister):
         email = data_in.email.strip().lower(),
         password_hash = get_password_hash(data_in.password),
         full_name = data_in.full_name,
-        created_at = datetime.now(timezone.utc)
+        created_at = datetime.now(UTC)
     )
     
     try:
@@ -37,7 +44,7 @@ def login(db :Session, data_login: UserLogin):
         return "USER HAVE BEEN LOCK !"
     data_user:dict[str, Any] = {
         "sub": str(user_check.id),
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "role": user_check.role,
         "user_name": user_check.full_name
     }

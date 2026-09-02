@@ -1,8 +1,11 @@
-from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from ..models import ProjectMemberRole
 from .user_schemas import UserResponseButForGetProjectMember
+
 
 class ProjectMemberInput(BaseModel):
     user_id: int = Field(...)

@@ -1,11 +1,13 @@
-from pydantic import BaseModel, Field, ConfigDict, model_validator
-from datetime import datetime, timezone
-from ..models import TaskStatus, TaskPriority
+from datetime import UTC, datetime, timedelta
 from typing import Literal
-from .comment_schemas import CommentResponse
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from ..models import TaskPriority, TaskStatus
 from .attachment_schemas import AttachmentResponse
-from datetime import timedelta
+from .comment_schemas import CommentResponse
 from .user_schemas import UserResponseButForGetDetailTask
+
 
 class TaskInput(BaseModel):
     title: str = Field(...,min_length=5, max_length=100, examples=["Dự án làm game tai ương"])
@@ -14,16 +16,16 @@ class TaskInput(BaseModel):
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
     priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.URGENT] = Field(..., examples=[TaskPriority.HIGH])
     due_date: datetime | None = Field(default=None, examples=[None])
-    create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    create_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     @model_validator(mode="after")    
     def check_due_date_after_created_at(self):
         if self.due_date is not None:
             due = self.due_date
             created = self.create_at
             if due.tzinfo is None:
-                due = due.replace(tzinfo=timezone.utc)
+                due = due.replace(tzinfo=UTC)
             if created.tzinfo is None:
-                created = created.replace(tzinfo=timezone.utc)
+                created = created.replace(tzinfo=UTC)
 
             if due - timedelta(hours=1)<= created :
                 raise ValueError("due_date phải diễn ra sau create_at ít nhất 1 giờ!")
@@ -37,7 +39,7 @@ class TaskUpdate(BaseModel):
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
     priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.URGENT] = Field(..., examples=[TaskPriority.HIGH])
     due_date: datetime | None = Field(default= None, examples=[None])
-    create_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    create_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     
     @model_validator(mode="after")
     def check_due_date_after_created_at(self):
@@ -45,9 +47,9 @@ class TaskUpdate(BaseModel):
             due = self.due_date
             created = self.create_at
             if due.tzinfo is None:
-                due = due.replace(tzinfo=timezone.utc)
+                due = due.replace(tzinfo=UTC)
             if created.tzinfo is None:
-                created = created.replace(tzinfo=timezone.utc)
+                created = created.replace(tzinfo=UTC)
 
             if due - timedelta(hours=1)<= created :
                 raise ValueError("due_date phải diễn ra sau create_at ít nhất 1 giờ!")

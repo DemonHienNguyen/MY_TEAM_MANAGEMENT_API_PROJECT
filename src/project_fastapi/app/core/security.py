@@ -1,10 +1,12 @@
-from jwt import decode, encode, ExpiredSignatureError, InvalidTokenError
-from pwdlib import PasswordHash
-from datetime import datetime, timezone, timedelta
-from .config import setting
-from typing import Any
 from copy import deepcopy
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
 from fastapi import HTTPException, status
+from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
+from pwdlib import PasswordHash
+
+from .config import setting
 
 password_hash = PasswordHash.recommended()
 
@@ -19,7 +21,7 @@ def create_access_token(pay_load: dict[str, Any], expire_time: timedelta | None 
     encode_pay_load = deepcopy(pay_load)
     encode_pay_load.update(
         {
-            "exp": datetime.now(timezone.utc) + (expire_time or timedelta(minutes=setting.ACCESS_TOKEN_EXPIRE_MINUTES)),
+            "exp": datetime.now(UTC) + (expire_time or timedelta(minutes=setting.ACCESS_TOKEN_EXPIRE_MINUTES)),
             "type": "access"
         }
     )
@@ -30,7 +32,7 @@ def create_refresh_token(pay_load: dict[str, Any], expire_time: timedelta | None
     encode_pay_load = deepcopy(pay_load)
     encode_pay_load.update(
         {
-            "exp": datetime.now(timezone.utc) + (expire_time or timedelta(days=setting.ACCESS_TOKEN_EXPIRE_MINUTES)),
+            "exp": datetime.now(UTC) + (expire_time or timedelta(days=setting.ACCESS_TOKEN_EXPIRE_MINUTES)),
             "type": "refresh"
         }
     )

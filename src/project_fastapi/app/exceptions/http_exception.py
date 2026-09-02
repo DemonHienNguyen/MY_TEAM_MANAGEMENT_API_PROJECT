@@ -1,8 +1,12 @@
-from fastapi  import FastAPI, HTTPException
+from typing import cast
+
+from fastapi import FastAPI, HTTPException
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+
 from ..responses import StandardResponse
-from typing import cast
+
+
 def http_error(app: FastAPI):
     @app.exception_handler(HTTPException)
     def http_excep(request: Request, exc: HTTPException):

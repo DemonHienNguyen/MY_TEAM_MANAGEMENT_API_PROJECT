@@ -1,11 +1,14 @@
-from fastapi  import FastAPI, status
+from typing import Any, cast
+
+from fastapi import FastAPI, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from ..responses import StandardResponse
-from typing import cast, Any
+
 from ..core import logger
+from ..responses import StandardResponse
+
 
 def validate_error(app: FastAPI):
     @app.exception_handler(RequestValidationError)

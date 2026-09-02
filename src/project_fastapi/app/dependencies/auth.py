@@ -1,12 +1,13 @@
-from ..core import decode_token
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
 from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from ..core import decode_token
+from ..db import DataBase
 from ..models import (
     UserModel,
     UserRole,
 )
-import jwt
-from ..db import DataBase
 
 o_schema = HTTPBearer()
 

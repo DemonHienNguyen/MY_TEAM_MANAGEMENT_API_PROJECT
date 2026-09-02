@@ -1,8 +1,11 @@
-from ..db import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, DateTime, ForeignKey, Text
-from sqlalchemy.sql import func
 from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
+
+from ..db import Base
+
 
 class CommnentModel(Base):
     __tablename__ = "comments"

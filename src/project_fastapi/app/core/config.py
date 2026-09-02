@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr, computed_field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Setting(BaseSettings):
     DATABASE_USER: str

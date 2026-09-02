@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, ConfigDict, model_validator
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ProjectInput(BaseModel):

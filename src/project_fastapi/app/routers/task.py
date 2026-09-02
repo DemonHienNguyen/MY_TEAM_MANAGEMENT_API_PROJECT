@@ -1,41 +1,43 @@
+from typing import Literal
+
 from fastapi import (
     APIRouter,
-    status,
+    Depends,
+    File,
     HTTPException,
     Path,
-    Depends,
     Query,
-    File,
     UploadFile,
+    status,
 )
-from ..db import DataBase
 from fastapi.requests import Request
+
+from ..core import limit
+from ..db import DataBase
+from ..dependencies import get_current_user
+from ..models import TaskPriority, TaskStatus, UserModel
+from ..responses import StandardResponse
 from ..schemas import (
-    TaskInput,
-    TaskResponse,
-    TaskUpdate,
-    TaskResponseButForGetListTask,
+    AttachmentResponse,
     CommentCreate,
     CommentResponse,
-    AttachmentResponse,
+    TaskInput,
+    TaskResponse,
     TaskResponseButForGetDetailTask,
+    TaskResponseButForGetListTask,
+    TaskUpdate,
 )
-from ..models import UserModel, TaskPriority, TaskStatus
 from ..services import (
-    post_a_task_in_project,
+    count_task_in_project,
+    create_a_new_comment,
+    delete_task,
     get_all_task_in_project,
+    get_all_task_you_assign_in_project,
     get_detail_task_by_task_id,
     patch_task,
-    delete_task,
-    create_a_new_comment,
+    post_a_task_in_project,
     upload_file,
-    get_all_task_you_assign_in_project,
-    count_task_in_project,
 )
-from ..responses import StandardResponse
-from ..dependencies import get_current_user
-from ..core import limit
-from typing import Literal
 
 router = APIRouter(tags=["Task"])
 

@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
+
 from ..models import UserModel
+
 
 def search_user_by_name_email_or_status(
     db: Session,

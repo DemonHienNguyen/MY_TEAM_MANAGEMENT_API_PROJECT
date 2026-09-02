@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import case
-from ..models import ProjectModel, UserModel, ProjectMemberModel, ProjectMemberRole
-from ..schemas import ProjectMemberInput
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
+from sqlalchemy import case
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, joinedload
+
+from ..models import ProjectMemberModel, ProjectMemberRole, ProjectModel, UserModel
+from ..schemas import ProjectMemberInput
 
 find_member_in_project: Callable[[Session, int, int], ProjectMemberModel | None] = (
     lambda the_data, project_id, member_id: the_data.query(ProjectMemberModel)
@@ -69,7 +71,7 @@ def create_member(
                 project_id=id,
                 user_id=data_in.user_id,
                 role=member_role,
-                joined_at=datetime.now(timezone.utc),
+                joined_at=datetime.now(UTC),
             )
             db.add(new_data)
             db.commit()

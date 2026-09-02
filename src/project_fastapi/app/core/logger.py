@@ -1,5 +1,5 @@
 import logging
-import sys 
+import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 

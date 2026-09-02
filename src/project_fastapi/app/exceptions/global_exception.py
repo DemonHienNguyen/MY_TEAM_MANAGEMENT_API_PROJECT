@@ -1,8 +1,10 @@
-from fastapi  import FastAPI, status
+from fastapi import FastAPI, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from ..responses import StandardResponse
+
 from ..core import logger
+from ..responses import StandardResponse
+
 
 def global_error(app: FastAPI):
     @app.exception_handler(Exception)

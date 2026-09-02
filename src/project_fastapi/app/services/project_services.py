@@ -1,16 +1,17 @@
-from sqlalchemy.orm import Session, joinedload, join
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime, timezone
+from sqlalchemy.orm import Session, joinedload
+
 from ..models import (
-    ProjectModel,
-    UserModel,
     ProjectMemberModel,
     ProjectMemberRole,
+    ProjectModel,
     TaskModel,
+    UserModel,
 )
 from ..schemas import ProjectInput, ProjectUpdate
-from collections.abc import Callable
-from datetime import timedelta
 
 find_user_by_id: Callable[[Session, int], UserModel | None] = (
     lambda the_data, user_id: the_data.query(UserModel)
@@ -65,7 +66,7 @@ def post_project(db: Session, project_in: ProjectInput, current: UserModel):
             name=project_in.name.title(),
             description=project_in.description,
             owner_id=user_find.id,
-            create_at=datetime.now(timezone.utc),
+            create_at=datetime.now(UTC),
         )
         db.add(new_project_data)
         db.flush()
@@ -109,9 +110,9 @@ def get_projects(
 def get_detail_project(db: Session, current_user: UserModel, project_id: int):
     the_project = find_project_by_id(db, project_id)
     if the_project is None:
-        return "NOT FOUND THE PROJECT !"
+        return "NOT FOUND THE PROJECT !", ""
     if the_project.is_delete:
-        return "THE PROJECT HAVE BEEN DELETE !"
+        return "THE PROJECT HAVE BEEN DELETE !", ""
     member_projetct = (
         db.query(ProjectMemberModel)
         .join(ProjectMemberModel.project)
@@ -121,7 +122,7 @@ def get_detail_project(db: Session, current_user: UserModel, project_id: int):
     )
     the_user_in_project = [m.user_id for m in member_projetct]
     if current_user.id not in the_user_in_project:
-        return "NOT PREMISSION TO SEE THE PROJECT"
+        return "NOT PREMISSION TO SEE THE PROJECT", ""
     return the_project, find_user_by_id(db, the_project.owner_id)
 
 
@@ -141,9 +142,9 @@ def path_project(
         .first()
     )
     time_create_at = (the_project.create_at + timedelta(days=7)).replace(
-        tzinfo=timezone.utc
+        tzinfo=UTC
     )
-    if time_create_at <= datetime.now(timezone.utc):
+    if time_create_at <= datetime.now(UTC):
         return "NOT UPDATE THE_NAME_OF THE_PROJECT AFTER 7 DAYS"
     if the_project_duplicate_name is not None:
         return "THE NAME PROJECT IS DUPLICATE !"

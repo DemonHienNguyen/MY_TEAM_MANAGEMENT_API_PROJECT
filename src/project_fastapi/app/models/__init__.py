@@ -1,18 +1,19 @@
+from .attachment import AttachmentModel
+from .comments import CommnentModel
 from .project import ProjectModel
 from .project_members import ProjectMemberModel, ProjectMemberRole
-from .task import TaskModel, TaskStatus, TaskPriority
+from .task import TaskModel, TaskPriority, TaskStatus
 from .user import UserModel, UserRole
-from .comments import CommnentModel
-from .attachment import AttachmentModel
+
 __all__ = [
-    "ProjectModel",
+    "AttachmentModel",
+    "CommnentModel",
     "ProjectMemberModel",
     "ProjectMemberRole",
+    "ProjectModel",
     "TaskModel",
-    "TaskStatus",
     "TaskPriority",
+    "TaskStatus",
     "UserModel",
     "UserRole",
-    "CommnentModel",
-    "AttachmentModel",
 ]

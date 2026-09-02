@@ -1,4 +1,4 @@
-from .database import DataBase, create_all, Base, connect_db
+from .database import Base, DataBase, connect_db, create_all
 from .seed import seed_data
 
-__all__ = ["DataBase", "create_all", "Base", "seed_data", "connect_db"]
+__all__ = ["Base", "DataBase", "connect_db", "create_all", "seed_data"]

@@ -1,7 +1,9 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base, Session
-from fastapi import Depends
 from typing import Annotated
+
+from fastapi import Depends
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+
 from ..core import setting
 
 engine = create_engine(setting.DATABASE_URL)

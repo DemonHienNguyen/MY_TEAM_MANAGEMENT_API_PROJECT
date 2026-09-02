@@ -1,9 +1,12 @@
-from fastapi  import FastAPI, HTTPException, status
+from fastapi import FastAPI, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from ..responses import StandardResponse
-from ..core import logger
 from slowapi.errors import RateLimitExceeded
+
+from ..core import logger
+from ..responses import StandardResponse
+
+
 def rare_limit(app: FastAPI):
     @app.exception_handler(RateLimitExceeded)
     def rare_limit(request: Request, exc: RateLimitExceeded):

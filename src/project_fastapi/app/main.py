@@ -1,15 +1,15 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .db import create_all, seed_data  # type: ignore
-from .models import UserModel, ProjectMemberModel, ProjectModel, TaskModel, CommnentModel  # type: ignore
-from .exceptions import global_error, http_error, validate_error, rare_limit
-from contextlib import asynccontextmanager
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 # from .db.seed import seed_data
 from .core import limit, logger, setting
-from .routers import AuRouter, UsRouter, ProRouter, ProMeRouter, TasRouter
-from slowapi.errors import RateLimitExceeded
-from slowapi import _rate_limit_exceeded_handler
+from .db import create_all  # type: ignore
+from .exceptions import global_error, http_error, rare_limit, validate_error
+from .routers import AuRouter, ProMeRouter, ProRouter, TasRouter, UsRouter
 from .utils import CustomLogging
 
 

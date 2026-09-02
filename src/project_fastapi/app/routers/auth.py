@@ -1,16 +1,17 @@
-from fastapi import APIRouter, status, HTTPException
-from ..db import DataBase
+from fastapi import APIRouter, HTTPException, status
 from fastapi.requests import Request
+
+from ..core import limit
+from ..db import DataBase
+from ..responses import StandardResponse
 from ..schemas import (
+    RefreshTokenRequest,
+    UserLogin,
     UserRegister,
     UserResponse,
-    UserLogin,
     UserResponseLogin,
-    RefreshTokenRequest,
 )
-from ..services import post_a_user, login, create_access
-from ..responses import StandardResponse
-from ..core import limit
+from ..services import create_access, login, post_a_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

@@ -1,8 +1,11 @@
-from ..db import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, DateTime, Text, ForeignKey, Enum, Boolean
-from datetime import datetime
 import enum
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..db import Base
+
 
 class TaskStatus(str, enum.Enum):
     TODO = "TODO"

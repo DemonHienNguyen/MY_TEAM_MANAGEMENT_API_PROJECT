@@ -1,21 +1,23 @@
-from sqlalchemy.orm import Session, joinedload
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import Any
+
+from fastapi import UploadFile
+from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import or_, Null
-from ..schemas import TaskInput, TaskUpdate, CommentCreate
+from sqlalchemy.orm import Session, joinedload
+
 from ..models import (
-    UserModel,
+    AttachmentModel,
+    CommnentModel,
     ProjectMemberModel,
     ProjectModel,
     TaskModel,
-    CommnentModel,
-    AttachmentModel,
     TaskStatus,
+    UserModel,
 )
-from collections.abc import Callable
-from datetime import datetime, timezone
-from fastapi import UploadFile
+from ..schemas import CommentCreate, TaskInput, TaskUpdate
 from ..utils import save_a_file
-from typing import Any
 
 find_member_in_project: Callable[[Session, int, int], ProjectMemberModel | None] = (
     lambda the_data, project_id, member_id: the_data.query(ProjectMemberModel)
@@ -148,7 +150,7 @@ def get_all_task_in_project(
         )
 
     if is_overdue:
-        the_task = the_task.filter(TaskModel.due_date < datetime.now(timezone.utc), TaskModel.status != TaskStatus.DONE)
+        the_task = the_task.filter(TaskModel.due_date < datetime.now(UTC), TaskModel.status != TaskStatus.DONE)
     order_conditions:list[TaskModel] = []
     if sort_by_priority:
         order_conditions.append(TaskModel.priority_num.asc())
@@ -161,8 +163,7 @@ def get_all_task_in_project(
     if order_conditions:
         the_task = the_task.order_by(*order_conditions)
     if limit is not None:
-        if limit > 20:
-            limit = 20
+        limit = min(limit, 20)
         the_task = the_task.limit(limit=limit)
     if offset is not None:
         the_task = the_task.offset(offset=offset)
@@ -256,7 +257,7 @@ def patch_task(
         for key, value in data_update.model_dump(exclude_unset=True).items():
             setattr(check_task_exists, key, value)
         if data_update.status == TaskStatus.DONE:
-            check_task_exists.completed_at = datetime.now(timezone.utc)
+            check_task_exists.completed_at = datetime.now(UTC)
         else:
             check_task_exists.completed_at = None
         db.commit()
@@ -335,7 +336,7 @@ def create_a_new_comment(
         db.commit()
         db.refresh(new_data_comment)
     except IntegrityError:
-        Exception("Lỗi liên quan đến dữ liệu")
+        raise Exception("Lỗi liên quan đến dữ liệu")
     return new_data_comment
 
 
@@ -373,7 +374,7 @@ async def upload_file(
         db.commit()
         db.refresh(new_attachment_data)
     except IntegrityError:
-        Exception("Lỗi liên quan đến database !")
+        raise Exception("Lỗi liên quan đến database !")
 
     return new_attachment_data
 

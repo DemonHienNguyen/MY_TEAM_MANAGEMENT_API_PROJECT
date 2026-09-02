@@ -1,7 +1,10 @@
-from ..db import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, DateTime, Text, ForeignKey, Boolean
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..db import Base
+
 
 class ProjectModel(Base):
     __tablename__ = "projects"

@@ -1,7 +1,9 @@
-import os 
+import os
 from pathlib import Path
 from uuid import uuid4
-from fastapi import UploadFile, HTTPException, status, File
+
+from fastapi import File, HTTPException, UploadFile, status
+
 from ..core import setting
 
 BASE_DIR = Path(__file__).resolve().parent.parent

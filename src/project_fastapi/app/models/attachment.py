@@ -1,8 +1,11 @@
-from ..db import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, DateTime, ForeignKey, String, Boolean
-from sqlalchemy.sql import func
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
+
+from ..db import Base
+
 
 class AttachmentModel(Base):
     __tablename__ = "attachments"

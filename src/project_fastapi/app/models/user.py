@@ -1,8 +1,11 @@
-from ..db import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, Enum, Boolean, DateTime
 import enum
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Enum, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..db import Base
+
 
 class UserRole(str, enum.Enum):
     ADMIN = "ADMIN"

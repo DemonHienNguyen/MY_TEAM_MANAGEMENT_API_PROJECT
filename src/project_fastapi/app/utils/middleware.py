@@ -1,10 +1,12 @@
+import time
+from uuid import uuid4
+
 from fastapi.requests import Request
 from fastapi.responses import Response
-from ..core import logger
-from uuid import uuid4
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-import time
-import asyncio
+
+from ..core import logger
+
 
 class CustomLogging(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:

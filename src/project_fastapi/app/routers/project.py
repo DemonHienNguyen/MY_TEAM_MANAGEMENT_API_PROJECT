@@ -1,24 +1,26 @@
-from fastapi import APIRouter, status, HTTPException, Depends, Query, Path
-from ..db import DataBase
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from fastapi.requests import Request
-from ..models import UserModel, ProjectMemberRole
+
+from ..core import limit, logger
+from ..db import DataBase
+from ..dependencies import Require_Admin_and_User, get_current_user
+from ..models import ProjectMemberRole, UserModel
+from ..responses import StandardResponse
 from ..schemas import (
     ProjectInput,
     ProjectResponse,
     ProjectUpdate,
     UserResponseButForGetDetailProject,
 )
-from ..responses import StandardResponse
 from ..services import (
-    post_project,
-    get_projects,
-    get_detail_project,
-    path_project,
     delete_project,
+    get_detail_project,
+    get_projects,
+    path_project,
+    post_project,
 )
-from ..dependencies import get_current_user, Require_Admin_and_User
-from ..core import limit, logger
-from typing import Literal
 
 router = APIRouter(prefix="/projects", tags=["Project"])
 
@@ -209,10 +211,11 @@ def update_project(
             },
         )
     if check == "THE NAME PROJECT IS DUPLICATE !":
+        logger.warning("TEN DỰ ÁN BI TRUNG")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
-                "message": f"Tên Project bị trùng",
+                "message": "Tên Project bị trùng",
                 "error": "PROJECT NAME HAVE BEEN DUPLICATE !",
             },
         )
