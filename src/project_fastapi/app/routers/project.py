@@ -89,7 +89,7 @@ def get_all_project(
     db: DataBase,
     current_user: UserModel = Depends(get_current_user),
     keyword: str | None = Query(default=None),
-    role: Literal[ProjectMemberRole.OWNER, ProjectMemberRole.MEMBER] = Query(
+    role: Literal[ProjectMemberRole.OWNER, ProjectMemberRole.MEMBER, ProjectMemberRole.VIEWER] = Query(
         default=None
     ),
 ):

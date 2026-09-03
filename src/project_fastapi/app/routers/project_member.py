@@ -211,6 +211,15 @@ def update_member_in_project(
                 "error": "NOT HAVE PREMISSION TO ADJUST THE PROJECT !",
             },
         )
+    if check == "OWNER NOT UPDATE YOURSELF !":
+        logger.warning("BẠN KHÔNG CẬP NHẬT VAI TRÒ CỦA CHÍNH BẢN THÂN !")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "message": "Người dùng không được CẬP NHẬT chính bạn!",
+                "error": "NOT UPDATE YOURSELF !",
+            },
+        )
     if check == "THE PROJECT HAVE BEEN DELETE !":
         logger.warning("DỰ ÁN ĐÃ BỊ XÓA !")
         raise HTTPException(

@@ -66,7 +66,7 @@ def post_project(db: Session, project_in: ProjectInput, current: UserModel):
             name=project_in.name.title(),
             description=project_in.description,
             owner_id=user_find.id,
-            create_at=datetime.now(UTC),
+            create_at=datetime.now(),
         )
         db.add(new_project_data)
         db.flush()

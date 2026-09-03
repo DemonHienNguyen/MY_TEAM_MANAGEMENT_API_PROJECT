@@ -15,6 +15,7 @@ from ..models import (
     TaskModel,
     TaskStatus,
     UserModel,
+    TaskPriority,
 )
 from ..schemas import CommentCreate, TaskInput, TaskUpdate
 from ..utils import save_a_file
@@ -82,6 +83,12 @@ def post_a_task_in_project(
         return "ASSIGNEE NOT IN THE PROJECT !"
     if not check_user.is_active:
         return "THAT ASSIGNEE IS NOT ACTIVATE"
+    priorities_num = {
+        TaskPriority.URGENT: 1,
+        TaskPriority.HIGH : 2,
+        TaskPriority.MEDIUM: 3,
+        TaskPriority.LOW: 4
+    }
     try:
         new_data = TaskModel(
             project_id=id,
@@ -90,6 +97,7 @@ def post_a_task_in_project(
             assignee_id=data.assignee_id,
             status=data.status,
             priority=data.priority,
+            priority_num = priorities_num[data.priority],
             due_date=data.due_date,
             create_at=data.create_at,
             create_by=curren_user.id,
@@ -220,6 +228,12 @@ def get_detail_task_by_task_id(db: Session, task_id: int, current_user: UserMode
 def patch_task(
     db: Session, task_id: int, current_user: UserModel, data_update: TaskUpdate
 ):
+    priorities_num = {
+            TaskPriority.URGENT: 1,
+            TaskPriority.HIGH : 2,
+            TaskPriority.MEDIUM: 3,
+            TaskPriority.LOW: 4
+        }
     check_task_exists = find_task_by_task_id_and_user_id(db, task_id)
     if check_task_exists is None:
         return "NOT FOUND THAT TASK !"
@@ -260,6 +274,7 @@ def patch_task(
             check_task_exists.completed_at = datetime.now(UTC)
         else:
             check_task_exists.completed_at = None
+        check_task_exists.priority_num = priorities_num[data_update.priority]
         db.commit()
         db.refresh(check_task_exists)
         return check_task_exists

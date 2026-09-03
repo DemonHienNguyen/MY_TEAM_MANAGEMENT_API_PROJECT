@@ -12,7 +12,7 @@ from .user_schemas import UserResponseButForGetDetailTask
 class TaskInput(BaseModel):
     title: str = Field(...,min_length=5, max_length=100, examples=["Dự án làm game tai ương"])
     description: str = Field(default="")
-    assignee_id: int | None = Field(default=None)
+    assignee_id: int | None = Field(default=None, examples=[None])
     status: Literal[TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO] = Field(..., examples=[TaskStatus.DONE])
     priority: Literal[TaskPriority.HIGH, TaskPriority.LOW, TaskPriority.MEDIUM, TaskPriority.URGENT] = Field(..., examples=[TaskPriority.HIGH])
     due_date: datetime | None = Field(default=None, examples=[None])

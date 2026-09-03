@@ -126,6 +126,8 @@ def patch_member(
         return "USER NOT IN PROJECT !"
     if check_user_in_project.user_id != the_project_to_add_member.owner_id:
         return "NOT PREMISSION TO SEE MEMBER IN THE PROJECT"
+    if check_user_in_project.role == "OWNER": 
+        return "OWNER NOT UPDATE YOURSELF !"
     if the_project_to_add_member.is_delete:
         return "THE PROJECT HAVE BEEN DELETE !"
     if check_user_exists is None:
