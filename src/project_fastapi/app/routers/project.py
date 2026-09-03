@@ -93,11 +93,21 @@ def get_all_project(
         default=None
     ),
 ):
+    check = get_projects(db, current_user, keyword, role)
+    if len(check) == 0:
+        logger.warning("KHÔNG TÌM THẤY DỰ ÁN TƯƠNG TỰ NHƯ NÀY")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "message": "Không tìm thấy dự án bạn tìm kiếm",
+                "error": "NOT FOUND PROJECTS YOU SEARCH",
+            },
+        )
     logger.info("LẤY DANH SÁCH DỰ ÁN THÀNH CÔNG !")
     return StandardResponse(
         StatusCode=status.HTTP_200_OK,
         Message="Lấy danh sách dự án thành công !",
-        Data=get_projects(db, current_user, keyword, role),
+        Data=check,
         Error=None,
         Path=request.url.path,
     )

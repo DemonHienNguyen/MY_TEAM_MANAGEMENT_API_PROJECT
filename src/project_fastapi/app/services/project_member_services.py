@@ -126,14 +126,14 @@ def patch_member(
         return "USER NOT IN PROJECT !"
     if check_user_in_project.user_id != the_project_to_add_member.owner_id:
         return "NOT PREMISSION TO SEE MEMBER IN THE PROJECT"
-    if check_user_in_project.role == "OWNER": 
-        return "OWNER NOT UPDATE YOURSELF !"
     if the_project_to_add_member.is_delete:
         return "THE PROJECT HAVE BEEN DELETE !"
     if check_user_exists is None:
         return "USER IS NOT EXISTS !"
     if check_update_user_in_project is None:
         return "THIS MEMBER NOT IN THE PROJECT"
+    if check_update_user_in_project.role == "OWNER": 
+        return "OWNER NOT UPDATE YOURSELF !"
     check_update_user_in_project.role = role
     db.commit()
     db.refresh(check_update_user_in_project)

@@ -181,6 +181,14 @@ def get_list_of_task_filter(
                 "error": "THIS USER NOT IN THAT PROJECT !",
             },
         )
+    if len(check) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "message": "Không tìm thấy task !",
+                "error": "NOT FOUND TASKS IN THE PROJECT!",
+            },
+        )
     return StandardResponse(
         StatusCode=status.HTTP_200_OK,
         Message="Danh sách task",
