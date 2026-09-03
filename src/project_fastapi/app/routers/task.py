@@ -82,6 +82,14 @@ def create_new_task(
                 "error": "THIS PROJECT HAVE BEEN DELETE !",
             },
         )
+    if check == "THE TASK IS DUPLICATE !":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "message": "Dự án này đã bị trùng tiêu đề !",
+                "error": "THIS TASK HAVE BEEN DUPLICATE TITLE !",
+            },
+        )
     if check == "USER NOT IN THAT PROJECT !":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

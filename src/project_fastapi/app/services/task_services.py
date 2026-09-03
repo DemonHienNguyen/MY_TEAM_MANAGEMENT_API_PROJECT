@@ -59,7 +59,11 @@ find_task_by_task_id_and_user_id: Callable[[Session, int], TaskModel | None] = (
     .filter(TaskModel.id == task_id)
     .first()
 )
-
+find_task_by_title: Callable[[Session, str], TaskModel | None] = (
+    lambda the_data, title_task: the_data.query(TaskModel)
+    .filter(TaskModel.title == title_task)
+    .first()
+)
 
 def post_a_task_in_project(
     db: Session, id: int, data: TaskInput, curren_user: UserModel
@@ -69,7 +73,7 @@ def post_a_task_in_project(
     check_project = find_project_by_id(db, id)
     check_member = find_member_in_project(db, id, curren_user.id)
     check_user = find_user_by_user_id(db, data.assignee_id)
-
+    check_duplicate_task_title = find_task_by_title(db, data.title)
     check_assignee_in_project = find_member_in_project(db, id, data.assignee_id)
     if check_project is None:
         return "NOT FOUND THE PROJECT ! "
@@ -79,10 +83,13 @@ def post_a_task_in_project(
         return "NOT FOUND USER !"
     if check_project.is_delete:
         return "THE PROJECT HAVE BEEN DELETE !"
+    if check_duplicate_task_title is not None:
+        return "THE TASK IS DUPLICATE !"
     if check_assignee_in_project is None:
         return "ASSIGNEE NOT IN THE PROJECT !"
     if not check_user.is_active:
         return "THAT ASSIGNEE IS NOT ACTIVATE"
+    
     priorities_num = {
         TaskPriority.URGENT: 1,
         TaskPriority.HIGH : 2,
